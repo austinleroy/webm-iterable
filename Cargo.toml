@@ -1,0 +1,17 @@
+[package]
+name = "webm-iterable"
+version = "0.1.0"
+authors = ["Austin Blake <austinl3roy@gmail.com>"]
+edition = "2018"
+description = "This crate extends the ebml-iterable library to provide an iterator over webm data.  It provides a Matroska specification implementing the TagSpec trait to read webm files."
+readme = "README.md"
+license = "MIT"
+keywords = ["webm", "encoding", "parser", "serialization", "matroska"]
+categories = ["parsing", "data-structures", "encoding", "multimedia::encoding"]
+homepage = "https://github.com/austinleroy/webm-iterable"
+repository = "https://github.com/austinleroy/webm-iterable"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+ebml-iterable = "0.1.0"
