@@ -12,13 +12,13 @@ The `WebmIterator` type is an alias for [ebml-iterable][ebml-iterable]'s `TagIte
 
 > Note: The `with_capacity` method can be used to construct a `WebmIterator` with a specified default buffer size.  This is only useful as a microoptimization to memory management if you know the maximum tag size of the file you're reading.
 
-The data in the `EbmlTag` property can then be modified as desired (encryption, compression, etc.) and reencoded using the `WebmWriter` type.  `WebmWriter` simply wraps [ebml-iterable][ebml-iterable]'s `TagWriter`. This struct can be created with the `new` function on any source that implements the standard [Write][rust-write] trait.
+The data in the `TagPosition` property can then be modified as desired (encryption, compression, etc.) and reencoded using the `WebmWriter` type.  `WebmWriter` simply wraps [ebml-iterable][ebml-iterable]'s `TagWriter`. This struct can be created with the `new` function on any source that implements the standard [Write][rust-write] trait.
 
-See the [ebml-iterable][ebml-iterable] docs for more information on `EbmlTag`, `DataTag`, and `DataTagType` if needed.
+See the [ebml-iterable][ebml-iterable] docs for more information on `TagPosition` and `TagData` if needed.
 
 ## Matroska-specific types
 
-This crate provides two additional subtypes of `DataTagType` for ease of use:
+This crate provides two additional subtypes of `TagData` for ease of use:
 
   * [`Block`][mkv-block]
   * [`SimpleBlock`][mkv-sblock]
@@ -36,7 +36,7 @@ pub struct Block {
 }
 ```
 
-These properties are specific to the [Block][mkv-block] element as defined by [Matroska][mkv].  The `Block` struct implements `TryFrom<DataTagType>` and `Into<DataTagType>` to simplify coercion to and from regular `DataTagType::Binary` values.
+These properties are specific to the [Block][mkv-block] element as defined by [Matroska][mkv].  The `Block` struct implements `TryFrom<TagData>` and `Into<TagData>` to simplify coercion to and from regular `TagData::Binary` values.
 
 ### SimpleBlock
 
@@ -48,7 +48,7 @@ pub struct SimpleBlock {
 }
 ```
 
-These properties are specific to the [SimpleBlock][mkv-sblock] element as defined by [Matroska][mkv].  The `SipleBlock` struct also implements `TryFrom<DataTagType>` and `Into<DataTagType>` to simplify coercion to and from regular `DataTagType::Binary` values.
+These properties are specific to the [SimpleBlock][mkv-sblock] element as defined by [Matroska][mkv].  The `SimpleBlock` struct also implements `TryFrom<TagData>` and `Into<TagData>` to simplify coercion to and from regular `TagData::Binary` values.
 
 # Examples
 
@@ -63,7 +63,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let tag_iterator = WebmIterator::new(&mut src, &[]);
 
     for tag in tag_iterator {
-        println!("[{:?}]", tag?.spec_type);
+        println!("[{:?}]", tag?.spec_tag);
     }
 
     Ok(())
@@ -83,7 +83,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut tag_counts = HashMap::new();
 
     for tag in tag_iterator {
-        let count = tag_counts.entry(tag?.spec_type).or_insert(0);
+        let count = tag_counts.entry(tag?.spec_tag).or_insert(0);
         *count += 1;
     }
     
@@ -101,29 +101,28 @@ use std::convert::TryInto;
 use webm_iterable::{
     WebmIterator, 
     WebmWriter,
-    matroska_spec::{MatroskaTag, MatroskaSpec, Block},
-    tags::{EbmlTag, DataTagType, DataTag, TagSpec},
+    matroska_spec::{MatroskaSpec, Block, EbmlSpecification},
+    tags::{TagPosition, TagData},
 };
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     // 1
     let mut src = File::open("media/audiosample.webm").unwrap();
-    let tag_iterator = WebmIterator::new(&mut src, &[MatroskaTag::TrackEntry]);
+    let tag_iterator = WebmIterator::new(&mut src, &[MatroskaSpec::TrackEntry]);
     let mut dest = File::create("media/audioout.webm").unwrap();
     let mut tag_writer = WebmWriter::new(&mut dest);
-    let spec = MatroskaSpec {};
     let mut stripped_tracks = Vec::new();
 
     // 2
     for tag in tag_iterator {
         let mut tag = tag?;
         // 3
-        if matches!(tag.spec_type, MatroskaTag::TrackEntry) {
-            if let EbmlTag::FullTag(data) = &mut tag.tag {
-                if let DataTagType::Master(children) = &mut data.data_type {
-                    let is_audio_track = |tag: &mut DataTag| {
-                        if matches!(spec.get_tag(tag.id), MatroskaTag::TrackType) {
-                            if let DataTagType::UnsignedInt(val) = tag.data_type {
+        if let Some(MatroskaSpec::TrackEntry) = tag.spec_tag {
+            if let TagPosition::FullTag(_id, data) = &mut tag.tag {
+                if let TagData::Master(children) = data {
+                    let is_audio_track = |tag: &mut (u64, TagData)| {
+                        if MatroskaSpec::get_tag_id(&MatroskaSpec::TrackType) == tag.0 {
+                            if let TagData::UnsignedInt(val) = tag.1 {
                                 return val != 2;
                             }
                         }
@@ -131,8 +130,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                     };
 
                     if children.iter_mut().any(is_audio_track) {
-                        if let Some(track_number) = children.iter_mut().find(|c| matches!(spec.get_tag(c.id), MatroskaTag::TrackNumber)) {
-                            if let DataTagType::UnsignedInt(val) = track_number.data_type {
+                        if let Some(track_number) = children.iter_mut().find(|c| c.0 == MatroskaSpec::get_tag_id(&MatroskaSpec::TrackNumber)) {
+                            if let TagData::UnsignedInt(val) = track_number.1 {
                                 stripped_tracks.push(val);
                                 continue;
                             }
@@ -141,9 +140,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 }
             }
         // 4
-        } else if matches!(tag.spec_type, MatroskaTag::Block) || matches!(tag.spec_type, MatroskaTag::SimpleBlock) {
-            if let EbmlTag::FullTag(tag) = tag.tag.clone() {
-                let block: Block = tag.data_type.try_into()?;
+        } else if matches!(tag.spec_tag, Some(MatroskaSpec::Block)) || matches!(tag.spec_tag, Some(MatroskaSpec::SimpleBlock)) {
+            if let TagPosition::FullTag(_id, tag) = tag.tag.clone() {
+                let block: Block = tag.try_into()?;
                 if stripped_tracks.iter().any(|t| *t == block.track) {
                     continue;
                 }
@@ -161,7 +160,7 @@ In the above example, we (1) build our iterator and writer based on local file p
 
 > __Notes__
 > 
-> * Notice the second parameter passed into the `WebmIterator::new()` function.  This parameter tells the decoder which `Master` tags should be read as `EbmlTag::FullTag` tags rather than the standard `EbmlTag::StartTag` and `EbmlTag::EndTag` variants.  This greatly simplifies our iteration loop logic as we don't have to maintain an internal buffer for the "TrackEntry" tag that we are interested in processing.
+> * Notice the second parameter passed into the `WebmIterator::new()` function.  This parameter tells the decoder which `Master` tags should be read as `TagPosition::FullTag` tags rather than the standard `TagPosition::StartTag` and `TagPosition::EndTag` variants.  This greatly simplifies our iteration loop logic as we don't have to maintain an internal buffer for the "TrackEntry" tag that we are interested in processing.
 >
 
 
@@ -175,7 +174,6 @@ Any additional feature requests can also be submitted as [an issue][new-issue].
 
 [Austin Blake](https://github.com/austinleroy)
 
-[EBML]: http://ebml.sourceforge.net/
 [webm]: https://www.webmproject.org/
 [mkv]: http://www.matroska.org/technical/specs/index.html
 [mkv-block]: https://www.matroska.org/technical/specs/index.html#block_structure
