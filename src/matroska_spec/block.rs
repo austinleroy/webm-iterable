@@ -1,9 +1,9 @@
 use std::convert::{TryInto, TryFrom};
 
 use ebml_iterable::tools::{self as ebml_tools, Vint};
-use ebml_iterable::tags::TagData;
 
 use super::super::errors::WebmError;
+use super::MatroskaSpec;
 
 ///
 /// An enum describing different block lacing options.
@@ -43,11 +43,11 @@ pub struct Block {
     pub lacing: Option<BlockLacing>,
 }
 
-impl TryFrom<TagData> for Block {
+impl TryFrom<MatroskaSpec> for Block {
   type Error = WebmError;
 
-  fn try_from(value: TagData) -> Result<Self, Self::Error> {
-      if let TagData::Binary(data) = value {
+  fn try_from(value: MatroskaSpec) -> Result<Self, Self::Error> {
+      if let MatroskaSpec::Block(data) = value {
           let data = &data;
           let mut position: usize = 0;
           let (track, track_size) = ebml_tools::read_vint(data)
@@ -92,8 +92,8 @@ impl TryFrom<TagData> for Block {
 }
 
 #[allow(clippy::from_over_into)]
-impl Into<TagData> for Block {
-    fn into(self) -> TagData {
+impl Into<MatroskaSpec> for Block {
+    fn into(self) -> MatroskaSpec {
         let mut result = Vec::with_capacity(self.payload.len() + 11);
         result.extend_from_slice(&self.track.as_vint().expect("Unable to convert track value to vint"));
         result.extend_from_slice(&self.value.to_be_bytes());
@@ -114,6 +114,6 @@ impl Into<TagData> for Block {
         result.extend_from_slice(&flags.to_be_bytes());
         result.extend_from_slice(&self.payload);
         
-        TagData::Binary(result)
+        MatroskaSpec::Block(result)
     }
 }

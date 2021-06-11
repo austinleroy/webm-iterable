@@ -126,15 +126,6 @@
 
 use ebml_iterable::{TagIterator, TagWriter};
 
-pub mod tags {
-    //! 
-    //! Re-export from [`ebml_iterable::tags`].
-    //! 
-    //! These types are exported from the [`ebml_iterable`] library as a convenience. They define the basic data structures that [`WebmIterator`][`super::WebmIterator`] and [`WebmWriter`][`super::WebmWriter`] understand.
-    //! 
-    pub use ebml_iterable::tags::{TagPosition, TagData};
-}
-
 mod errors;
 pub mod matroska_spec;
 

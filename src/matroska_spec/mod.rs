@@ -11,14 +11,16 @@ pub use block::{Block, BlockLacing};
 pub use simple_block::SimpleBlock;
 
 pub use ebml_iterable::specs::EbmlSpecification;
-use ebml_iterable::specs::TagDataType;
+use ebml_iterable::specs::{TagDataType, ebml_specification};
+pub use ebml_iterable::specs::Master as Master;
 
 ///
 /// The Matroska specification, as an enum.
 /// 
 /// Variants are all of the different tag types defined by the Matroska spec.
 /// 
-#[derive(Copy, Clone, PartialEq, Eq, Hash, Debug, EbmlSpecification)]
+#[ebml_specification]
+#[derive(Clone, PartialEq, Debug)]
 pub enum MatroskaSpec {
     #[id(0x80)] 
     #[data_type(TagDataType::Master)]

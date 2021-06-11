@@ -1,10 +1,9 @@
 use std::convert::{TryInto, TryFrom};
 
-use ebml_iterable::tools as ebml_tools;
-use ebml_iterable::tags::TagData;
+use ebml_iterable::tools::{self as ebml_tools, Vint};
 
 use super::super::errors::WebmError;
-use super::Block;
+use super::{Block, BlockLacing, MatroskaSpec};
 
 ///
 /// A typed interpretation of the Matroska "SimpleBlock" element.
@@ -29,12 +28,40 @@ pub struct SimpleBlock {
     pub keyframe: bool,
 }
 
-impl TryFrom<TagData> for SimpleBlock {
+impl TryFrom<MatroskaSpec> for SimpleBlock {
     type Error = WebmError;
 
-    fn try_from(value: TagData) -> Result<Self, Self::Error> {
-        if let TagData::Binary(data) = &value {
+    fn try_from(value: MatroskaSpec) -> Result<Self, Self::Error> {
+        if let MatroskaSpec::SimpleBlock(data) = &value {
             let data = &data;
+            let mut position: usize = 0;
+            let (track, track_size) = ebml_tools::read_vint(data)
+                .map_err(|_| WebmError::BlockCoercionError(String::from("Unable to read track data in Block.")))?
+                .ok_or_else(|| WebmError::BlockCoercionError(String::from("Unable to read track data in Block.")))?;
+
+            position += track_size;
+
+            let value: [u8;2] = data[position..position+2].try_into()
+                .map_err(|_| WebmError::BlockCoercionError(String::from("Attempting to create Block tag, but binary data length was not 2")))?;
+            let value = i16::from_be_bytes(value);
+            position += 2;
+
+            let flags: u8 = data[position];
+            position += 1;
+            let invisible = (flags & 0x10) == 0x10;
+
+            let lacing: Option<BlockLacing>;
+            if flags & 0x0c == 0x0c {
+                lacing = Some(BlockLacing::FixedSize);
+            } else if flags & 0x0c == 0x08 {
+                lacing = Some(BlockLacing::Ebml);
+            } else if flags & 0x0c == 0x04 {
+                lacing = Some(BlockLacing::Xiph);
+            } else {
+                lacing = None;
+            }
+            
+            let payload = data[position..].to_vec();
             let mut position: usize = 0;
             let (_track, track_size) = ebml_tools::read_vint(data)
                 .map_err(|_| WebmError::SimpleBlockCoercionError(String::from("Unable to read track data in SimpleBlock.")))?
@@ -47,7 +74,13 @@ impl TryFrom<TagData> for SimpleBlock {
             let discardable = flags & 0x01 == 0x01;
 
             Ok(SimpleBlock {
-                block: value.try_into()?,
+                block: Block {
+                    payload,
+                    track,
+                    value,
+                    invisible,
+                    lacing,
+                },
                 discardable,
                 keyframe,
             })
@@ -58,32 +91,37 @@ impl TryFrom<TagData> for SimpleBlock {
 }
 
 #[allow(clippy::from_over_into)]
-impl Into<TagData> for SimpleBlock {
-    fn into(self) -> TagData {
-        let mut result: TagData = self.block.into();
-
-        match result {
-            TagData::Binary(ref mut data) => {
-                let mut position: usize = 0;
-                let (_track, track_size) = ebml_tools::read_vint(&data)
-                    .expect("Invalid data passed to block.  Could not read track.")
-                    .expect("Invalid data passed to block.  Could not read track.");
-                
-                position += track_size + 2;
-                let flags = &mut data[position];
-
-                if self.discardable {
-                    *flags |= 0x01;
-                }
-
-                if self.keyframe {
-                    *flags |= 0x80;
-                }
-            },
-            _ => panic!("Never should reach here - block was not binary tag type"),
+impl Into<MatroskaSpec> for SimpleBlock {
+    fn into(self) -> MatroskaSpec {
+        let mut result = Vec::with_capacity(self.block.payload.len() + 11);
+        result.extend_from_slice(&self.block.track.as_vint().expect("Unable to convert track value to vint"));
+        result.extend_from_slice(&self.block.value.to_be_bytes());
+        
+        let mut flags: u8 = 0x00;
+        if self.block.invisible {
+          flags |= 0x10;
+        }
+        
+        if self.block.lacing.is_some() {
+          match self.block.lacing.unwrap() {
+            BlockLacing::Xiph => { flags |= 0x04; },
+            BlockLacing::Ebml => { flags |= 0x08; },
+            BlockLacing::FixedSize => { flags |= 0x0c; },
+          }
         }
 
-        result
+        if self.discardable {
+            flags |= 0x01;
+        }
+
+        if self.keyframe {
+            flags |= 0x80;
+        }
+
+        result.extend_from_slice(&flags.to_be_bytes());
+        result.extend_from_slice(&self.block.payload);
+
+        MatroskaSpec::SimpleBlock(result)
     }
 }
 
