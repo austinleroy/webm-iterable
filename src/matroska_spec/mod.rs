@@ -476,6 +476,9 @@ pub enum MatroskaSpec {
     #[id(0x22b59c)] 
     #[data_type(TagDataType::Utf8)]
     Language,
+    #[id(0x22b59d)] 
+    #[data_type(TagDataType::Utf8)]
+    LanguageIETF,
     #[id(0x536e)] 
     #[data_type(TagDataType::Utf8)]
     Name,
