@@ -23,7 +23,7 @@
 //!     let tag_iterator = WebmIterator::new(&mut src, &[]);
 //! 
 //!     for tag in tag_iterator {
-//!         println!("[{:?}]", tag?.spec_tag);
+//!         println!("[{:?}]", tag?);
 //!     }
 //! 
 //!     Ok(())
@@ -37,6 +37,7 @@
 //! use std::fs::File;
 //! use std::collections::HashMap;
 //! use webm_iterable::WebmIterator;
+//! use webm_iterable::matroska_spec::EbmlTag;
 //! 
 //! fn main() -> Result<(), Box<dyn std::error::Error>> {
 //!     let mut src = File::open("media/test.webm").unwrap();
@@ -44,7 +45,7 @@
 //!     let mut tag_counts = HashMap::new();
 //! 
 //!     for tag in tag_iterator {
-//!         let count = tag_counts.entry(tag?.spec_tag).or_insert(0);
+//!         let count = tag_counts.entry(tag?.get_id()).or_insert(0);
 //!         *count += 1;
 //!     }
 //!     
@@ -63,70 +64,75 @@
 //! use webm_iterable::{
 //!     WebmIterator, 
 //!     WebmWriter,
-//!     matroska_spec::{MatroskaSpec, Block, EbmlSpecification},
-//!     tags::{TagPosition, TagData},
+//!     matroska_spec::{MatroskaSpec, Master, Block, EbmlSpecification, EbmlTag},
 //! };
 //! 
 //! fn main() -> Result<(), Box<dyn std::error::Error>> {
 //!     // 1
 //!     let mut src = File::open("media/audiosample.webm").unwrap();
-//!     let tag_iterator = WebmIterator::new(&mut src, &[MatroskaSpec::TrackEntry]);
+//!     let tag_iterator = WebmIterator::new(&mut src, &[MatroskaSpec::TrackEntry(Master::Start)]);
 //!     let mut dest = File::create("media/audioout.webm").unwrap();
 //!     let mut tag_writer = WebmWriter::new(&mut dest);
 //!     let mut stripped_tracks = Vec::new();
 //! 
 //!     // 2
 //!     for tag in tag_iterator {
-//!         let mut tag = tag?;
-//!         // 3
-//!         if let Some(MatroskaSpec::TrackEntry) = tag.spec_tag {
-//!             if let TagPosition::FullTag(_id, data) = &mut tag.tag {
-//!                 if let TagData::Master(children) = data {
-//!                     let is_audio_track = |tag: &mut (u64, TagData)| {
-//!                         if MatroskaSpec::get_tag_id(&MatroskaSpec::TrackType) == tag.0 {
-//!                             if let TagData::UnsignedInt(val) = tag.1 {
-//!                                 return val != 2;
-//!                             }
-//!                         }
+//!         let tag = tag?;
+//!         match tag {
+//!             // 3
+//!             MatroskaSpec::TrackEntry(master) => {
+//!                 let children = master.get_children();
+//!                 let is_audio_track = |tag: &MatroskaSpec| {
+//!                     if let MatroskaSpec::TrackType(val) = tag {
+//!                         return *val != 2;
+//!                     } else {
 //!                         false
-//!                     };
-//! 
-//!                     if children.iter_mut().any(is_audio_track) {
-//!                         if let Some(track_number) = children.iter_mut().find(|c| c.0 == MatroskaSpec::get_tag_id(&MatroskaSpec::TrackNumber)) {
-//!                             if let TagData::UnsignedInt(val) = track_number.1 {
-//!                                 stripped_tracks.push(val);
-//!                                 continue;
-//!                             }
-//!                         }
 //!                     }
+//!                 };
+//! 
+//!                 if children.iter().any(is_audio_track) {
+//!                     let track_number_variant = children.iter().find(|c| matches!(c, MatroskaSpec::TrackNumber(_))).expect("should have a track number child");
+//!                     let track_number = track_number_variant.as_unsigned_int().expect("TrackNumber is an unsigned int variant");
+//!                     stripped_tracks.push(*track_number);
+//!                 } else {
+//!                     tag_writer.write(&MatroskaSpec::TrackEntry(Master::Full(children)))?;
 //!                 }
-//!             }
-//!         // 4
-//!         } else if matches!(tag.spec_tag, Some(MatroskaSpec::Block)) || matches!(tag.spec_tag, Some(MatroskaSpec::SimpleBlock)) {
-//!             if let TagPosition::FullTag(_id, tag) = tag.tag.clone() {
-//!                 let block: Block = tag.try_into()?;
-//!                 if stripped_tracks.iter().any(|t| *t == block.track) {
-//!                     continue;
+//!             },
+//!             // 4
+//!             MatroskaSpec::Block(ref data) => {
+//!                 let data: &[u8] = &data;
+//!                 let block: Block = data.try_into()?;
+//!                 if !stripped_tracks.iter().any(|t| *t == block.track) {
+//!                     tag_writer.write(&tag)?;
 //!                 }
+//!             },
+//!             MatroskaSpec::SimpleBlock(ref data) => {
+//!                 let data: &[u8] = &data;
+//!                 let block: Block = data.try_into()?;
+//!                 if !stripped_tracks.iter().any(|t| *t == block.track) {
+//!                     tag_writer.write(&tag)?;
+//!                 }
+//!             },
+//!             // 5
+//!             _ => {
+//!                 tag_writer.write(&tag)?;
 //!             }
 //!         }
-//!         // 5
-//!         tag_writer.write(tag.tag)?;
 //!     }
 //!     
 //!     Ok(())
 //! }
 //! ```
 //! 
-//! In the above example, we (1) build our iterator and writer based on local file paths and declare useful local variables, (2) iterate over the tags in the webm file, (3) identify any track numbers that are not audio, store them in the `stripped_tracks` variable, and prevent writing the "TrackEntry" out, (4) avoid writing any block data for any tracks that are not audio, and (5) write remaining tags to the output destination.
+//! In the above example, we (1) build our iterator and writer based on local file paths and declare useful local variables, (2) iterate over the tags in the webm file, (3) identify any tracks that are not audio and store their numbers in the `stripped_tracks` variable; if they are audio, we write the "TrackEntry" out, (4) only write block data for tracks that are audio, and (5) write all other tags to the output destination.
 //! 
 //! __Notes__
-//! * Notice the second parameter passed into the `WebmIterator::new()` function.  This parameter tells the decoder which `Master` tags should be read as `TagPosition::FullTag` tags rather than the standard `TagPosition::StartTag` and `TagPosition::EndTag` variants.  This greatly simplifies our iteration loop logic as we don't have to maintain an internal buffer for the "TrackEntry" tag that we are interested in processing.
+//! * Notice the second parameter passed into the `WebmIterator::new()` function.  This parameter tells the decoder which "master" tags should be read as [`Master::Full`][`crate::matroska_spec::Master::Full`] variants rather than the standard [`Master::Start`][`crate::matroska_spec::Master::Start`] and [`Master::End`][`crate::matroska_spec::Master::End`] variants.  This greatly simplifies our iteration loop logic as we don't have to maintain an internal buffer for the "TrackEntry" tags that we are interested in processing.
 //! 
 
 use ebml_iterable::{TagIterator, TagWriter};
 
-mod errors;
+pub mod errors;
 pub mod matroska_spec;
 
 use matroska_spec::MatroskaSpec;
@@ -134,7 +140,7 @@ use matroska_spec::MatroskaSpec;
 ///
 /// Alias for [`ebml_iterable::TagIterator`] using [`MatroskaSpec`] as the generic type. 
 /// 
-/// This implements Rust's standard [`Iterator`] trait. The struct can be created with the `new` function on any source that implements the [`std::io::Read`] trait. The iterator outputs `SpecTag` objects containing the type of Matroska tag and the tag data. See the [ebml-iterable](https://crates.io/crates/ebml_iterable) docs for more information if needed.
+/// This implements Rust's standard [`Iterator`] trait. The struct can be created with the `new` function on any source that implements the [`std::io::Read`] trait. The iterator outputs [`MatroskaSpec`] variants containing the tag data. See the [ebml-iterable](https://crates.io/crates/ebml_iterable) docs for more information if needed.
 /// 
 /// Note: The `with_capacity` method can be used to construct a `WebmIterator` with a specified default buffer size.  This is only useful as a microoptimization to memory management if you know the maximum tag size of the file you're reading.
 /// 
@@ -151,45 +157,45 @@ pub type WebmWriter<W> = TagWriter<W>;
 mod tests {
     use std::io::Cursor;
 
-    use super::tags::{TagPosition, TagData};
+    use super::matroska_spec::{MatroskaSpec, Master};
     use super::WebmWriter;
     use super::WebmIterator;
 
     #[test]
     fn basic_tag_stream_write_and_iterate() {
-        let tags: Vec<TagPosition> = vec![
-            TagPosition::StartTag(0x1a45dfa3),
-            TagPosition::StartTag(0x18538067),
-            TagPosition::FullTag(0x83, TagData::UnsignedInt(0x01)),
-            TagPosition::EndTag(0x18538067),
-            TagPosition::FullTag(0x1f43b675, TagData::Master(vec![
-                (0x97, TagData::UnsignedInt(0x02)),
+        let tags: Vec<MatroskaSpec> = vec![
+            MatroskaSpec::Ebml(Master::Start),
+            MatroskaSpec::Segment(Master::Start),
+            MatroskaSpec::TrackType(0x01),
+            MatroskaSpec::Segment(Master::End),
+            MatroskaSpec::Cluster(Master::Full(vec![
+                MatroskaSpec::CueRefCluster(0x02),
             ])),
-            TagPosition::EndTag(0x1a45dfa3),
+            MatroskaSpec::Ebml(Master::End),
         ];
 
         let mut dest = Cursor::new(Vec::new());
         let mut writer = WebmWriter::new(&mut dest);
 
         for tag in tags {
-            writer.write(tag).expect("Test shouldn't error");
+            writer.write(&tag).expect("Test shouldn't error");
         }
 
         println!("dest {:?}", dest);
 
         let mut src = Cursor::new(dest.get_ref().to_vec());
         let reader = WebmIterator::new(&mut src, &[]);
-        let tags: Vec<TagPosition> = reader.map(|i| i.unwrap().tag).collect();
+        let tags: Vec<MatroskaSpec> = reader.map(|i| i.unwrap()).collect();
 
         println!("tags {:?}", tags);
 
-        assert_eq!(TagPosition::StartTag(0x1a45dfa3), tags[0]);
-        assert_eq!(TagPosition::StartTag(0x18538067), tags[1]);
-        assert_eq!(TagPosition::FullTag(0x83, TagData::UnsignedInt(0x01)), tags[2]);
-        assert_eq!(TagPosition::EndTag(0x18538067), tags[3]);
-        assert_eq!(TagPosition::StartTag(0x1f43b675), tags[4]);
-        assert_eq!(TagPosition::FullTag(0x97, TagData::UnsignedInt(0x02)), tags[5]);
-        assert_eq!(TagPosition::EndTag(0x1f43b675), tags[6]);
-        assert_eq!(TagPosition::EndTag(0x1a45dfa3), tags[7]);
+        assert_eq!(MatroskaSpec::Ebml(Master::Start), tags[0]);
+        assert_eq!(MatroskaSpec::Segment(Master::Start), tags[1]);
+        assert_eq!(MatroskaSpec::TrackType(0x01), tags[2]);
+        assert_eq!(MatroskaSpec::Segment(Master::End), tags[3]);
+        assert_eq!(MatroskaSpec::Cluster(Master::Start), tags[4]);
+        assert_eq!(MatroskaSpec::CueRefCluster(0x02), tags[5]);
+        assert_eq!(MatroskaSpec::Cluster(Master::End), tags[6]);
+        assert_eq!(MatroskaSpec::Ebml(Master::End), tags[7]);
     }
 }
