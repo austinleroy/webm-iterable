@@ -1,7 +1,7 @@
 //!
-//! Provides the [`MatroskaSpec`] enum, which implements [`EbmlSpecification`].
+//! Provides the [`MatroskaSpec`] enum, which implements [`EbmlSpecification`] and [`EbmlTag`].
 //! 
-//! This is used in conjuction with the [ebml_iterable](https://crates.io/crates/ebml_iterable) library to be able to read and write Matroska formatted files based on raw tag data. Additionally, this module provides the [`Block`] and [`SimpleBlock`] structs, which provide an easy way to work with block data.  These can easily be converted to and from [`TagData::Binary`][`ebml_iterable::tags::TagData::Binary`] objects using `into()` and `try_from()` to make working with the iterator stream easier.
+//! This is used in conjuction with the [ebml_iterable](https://crates.io/crates/ebml_iterable) library to be able to read and write Matroska formatted files based on raw tag data. Additionally, this module provides the [`Block`] and [`SimpleBlock`] structs, which provide an easy way to work with block data.  These can easily be converted to and from the regular enum variants using `into()` and `try_from()` to make working with the iterator stream easier.
 //! 
 
 mod block;
@@ -10,15 +10,16 @@ mod simple_block;
 pub use block::{Block, BlockLacing};
 pub use simple_block::SimpleBlock;
 
-pub use ebml_iterable::specs::EbmlSpecification;
-use ebml_iterable::specs::TagDataType;
+pub use ebml_iterable::specs::{EbmlSpecification, EbmlTag, Master, TagDataType};
+use ebml_iterable::specs::ebml_specification;
 
 ///
 /// The Matroska specification, as an enum.
 /// 
 /// Variants are all of the different tag types defined by the Matroska spec.
 /// 
-#[derive(Copy, Clone, PartialEq, Eq, Hash, Debug, EbmlSpecification)]
+#[ebml_specification]
+#[derive(Clone, PartialEq, Debug)]
 pub enum MatroskaSpec {
     #[id(0x80)] 
     #[data_type(TagDataType::Master)]

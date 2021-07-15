@@ -1,89 +1,110 @@
 use std::convert::{TryInto, TryFrom};
 
-use ebml_iterable::tools as ebml_tools;
-use ebml_iterable::tags::TagData;
+use ebml_iterable::tools::{self as ebml_tools, Vint};
 
-use super::super::errors::WebmError;
-use super::Block;
+use super::super::errors::WebmCoercionError;
+use super::{Block, BlockLacing, MatroskaSpec};
 
 ///
 /// A typed interpretation of the Matroska "SimpleBlock" element.
 /// 
-/// This struct has fields specific to the [SimpleBlock](https://www.matroska.org/technical/basics.html#simpleblock-structure) element as defined by the [Matroska Spec](http://www.matroska.org/technical/specs/index.html).  This struct implements `TryFrom<TagData>` and `Into<TagData>` to simplify coercion to and from regular [`TagData::Binary`] values.
+/// This struct has fields specific to the [SimpleBlock](https://www.matroska.org/technical/basics.html#simpleblock-structure) element as defined by the [Matroska Spec](http://www.matroska.org/technical/specs/index.html).  This struct implements `TryFrom<MatroskaSpec>` and `Into<MatroskaSpec>` to simplify coercion to and from regular enum variants.
 /// 
 /// ## Example
 /// 
 /// ```
 /// # use std::convert::TryInto;
-/// # use ebml_iterable::tags::TagData;
-/// use webm_iterable::matroska_spec::SimpleBlock;
+/// use webm_iterable::matroska_spec::{MatroskaSpec, SimpleBlock};
 /// 
-/// let binary_tag_data = TagData::Binary(vec![0x81,0x00,0x01,0x9d,0x00,0x00,0x00]);
-/// let mut simple_block: SimpleBlock = binary_tag_data.try_into().unwrap();
-/// simple_block.discardable = true;
+/// let variant = MatroskaSpec::SimpleBlock(vec![0x81,0x00,0x01,0x9d,0x00,0x00,0x00]);
+/// let mut simple_block: SimpleBlock = variant.try_into().unwrap();
+/// assert_eq!(true, simple_block.discardable);
 /// ```
 /// 
 pub struct SimpleBlock {
-    pub block: Block,
+    pub payload: Vec<u8>,
+    pub track: u64,
+    pub value: i16,
+
+    pub invisible: bool,
+    pub lacing: Option<BlockLacing>,
     pub discardable: bool,
     pub keyframe: bool,
 }
 
-impl TryFrom<TagData> for SimpleBlock {
-    type Error = WebmError;
+impl TryFrom<&[u8]> for SimpleBlock {
+    type Error = WebmCoercionError;
 
-    fn try_from(value: TagData) -> Result<Self, Self::Error> {
-        if let TagData::Binary(data) = &value {
-            let data = &data;
-            let mut position: usize = 0;
-            let (_track, track_size) = ebml_tools::read_vint(data)
-                .map_err(|_| WebmError::SimpleBlockCoercionError(String::from("Unable to read track data in SimpleBlock.")))?
-                .ok_or_else(|| WebmError::SimpleBlockCoercionError(String::from("Unable to read track data in SimpleBlock.")))?;
+    fn try_from(data: &[u8]) -> Result<Self, Self::Error> {
+        let block: Block = data.try_into()?;
+        let mut position: usize = 0;
+        let (_track, track_size) = ebml_tools::read_vint(data)
+            .map_err(|_| WebmCoercionError::SimpleBlockCoercionError(String::from("Unable to read track data in SimpleBlock.")))?
+            .ok_or_else(|| WebmCoercionError::SimpleBlockCoercionError(String::from("Unable to read track data in SimpleBlock.")))?;
 
-            position += track_size + 2;
-            let flags: u8 = data[position];
+        position += track_size + 2;
+        let flags: u8 = data[position];
 
-            let keyframe = flags & 0x80 == 0x80;
-            let discardable = flags & 0x01 == 0x01;
+        let keyframe = flags & 0x80 == 0x80;
+        let discardable = flags & 0x01 == 0x01;
 
-            Ok(SimpleBlock {
-                block: value.try_into()?,
-                discardable,
-                keyframe,
-            })
-        } else {
-            Err(WebmError::SimpleBlockCoercionError(String::from("Expected binary tag type for SimpleBlock tag, but received a different type!")))
+        Ok(SimpleBlock {
+            payload: block.payload,
+            track: block.track,
+            value: block.value,
+            invisible: block.invisible,
+            lacing: block.lacing,
+            discardable,
+            keyframe,
+        })
+    }
+}
+
+impl TryFrom<MatroskaSpec> for SimpleBlock {
+    type Error = WebmCoercionError;
+
+    fn try_from(value: MatroskaSpec) -> Result<Self, Self::Error> {
+        match value {
+            MatroskaSpec::SimpleBlock(data) => {
+                let data: &[u8] = &data;
+                SimpleBlock::try_from(data)
+            },
+            _ => Err(WebmCoercionError::SimpleBlockCoercionError(String::from("Only 'SimpleBlock' variants can be converted to a SimpleBlock struct")))
         }
     }
 }
 
-#[allow(clippy::from_over_into)]
-impl Into<TagData> for SimpleBlock {
-    fn into(self) -> TagData {
-        let mut result: TagData = self.block.into();
-
-        match result {
-            TagData::Binary(ref mut data) => {
-                let mut position: usize = 0;
-                let (_track, track_size) = ebml_tools::read_vint(&data)
-                    .expect("Invalid data passed to block.  Could not read track.")
-                    .expect("Invalid data passed to block.  Could not read track.");
-                
-                position += track_size + 2;
-                let flags = &mut data[position];
-
-                if self.discardable {
-                    *flags |= 0x01;
-                }
-
-                if self.keyframe {
-                    *flags |= 0x80;
-                }
-            },
-            _ => panic!("Never should reach here - block was not binary tag type"),
+impl From<SimpleBlock> for MatroskaSpec {
+    fn from(simple_block: SimpleBlock) -> Self {
+        let mut result = Vec::with_capacity(simple_block.payload.len() + 11);
+        result.extend_from_slice(&simple_block.track.as_vint().expect("Unable to convert track value to vint"));
+        result.extend_from_slice(&simple_block.value.to_be_bytes());
+        
+        let mut flags: u8 = 0x00;
+        if simple_block.invisible {
+          flags |= 0x10;
+        }
+        
+        if simple_block.lacing.is_some() {
+          match simple_block.lacing.unwrap() {
+            BlockLacing::Xiph => { flags |= 0x04; },
+            BlockLacing::Ebml => { flags |= 0x08; },
+            BlockLacing::FixedSize => { flags |= 0x0c; },
+          }
         }
 
-        result
+        if simple_block.discardable {
+            flags |= 0x01;
+        }
+
+        if simple_block.keyframe {
+            flags |= 0x80;
+        }
+
+        result.extend_from_slice(&flags.to_be_bytes());
+        result.extend_from_slice(&simple_block.payload);
+
+        MatroskaSpec::SimpleBlock(result)
     }
 }
 
@@ -91,29 +112,29 @@ impl Into<TagData> for SimpleBlock {
 mod tests {
     use std::convert::TryFrom;
 
+    use super::MatroskaSpec;
     use super::SimpleBlock;
-    use super::TagData;
     use super::super::block::BlockLacing;
 
     #[test]
     fn decode_encode_simple_block() {
         let block_content = vec![0x81,0x00,0x01,0x9d,0x00,0x00,0x00];
-        let simple_block = SimpleBlock::try_from(TagData::Binary(block_content.clone())).unwrap();
+        let simple_block = SimpleBlock::try_from(MatroskaSpec::SimpleBlock(block_content.clone())).unwrap();
 
         assert!(simple_block.keyframe);
         assert!(simple_block.discardable);
-        assert!(simple_block.block.invisible);
-        assert_eq!(Some(BlockLacing::FixedSize), simple_block.block.lacing);
-        assert_eq!(1, simple_block.block.track);
-        assert_eq!(1, simple_block.block.value);
+        assert!(simple_block.invisible);
+        assert_eq!(Some(BlockLacing::FixedSize), simple_block.lacing);
+        assert_eq!(1, simple_block.track);
+        assert_eq!(1, simple_block.value);
 
-        let encoded: TagData = simple_block.into();
+        let encoded: MatroskaSpec = simple_block.into();
 
         match encoded {
-            TagData::Binary(data) => {
+            MatroskaSpec::SimpleBlock(data) => {
                 assert_eq!(block_content, data);
             },
-            _ => panic!("not binary type?"),
+            _ => panic!("not simple block variant?"),
         }
     }
 }
