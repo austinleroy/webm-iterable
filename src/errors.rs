@@ -7,6 +7,7 @@ use std::error::Error;
 
 pub use ebml_iterable::error::TagIteratorError;
 pub use ebml_iterable::error::TagWriterError;
+pub use ebml_iterable::error::ToolError;
 
 ///
 /// Errors that can occur when coercing WebM data into structs.
