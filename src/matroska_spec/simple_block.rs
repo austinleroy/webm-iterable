@@ -21,15 +21,25 @@ use super::{Block, BlockLacing, MatroskaSpec};
 /// assert_eq!(true, simple_block.discardable);
 /// ```
 /// 
+#[derive(Clone, Debug)]
 pub struct SimpleBlock {
     pub payload: Vec<u8>,
     pub track: u64,
+    /// The block timestamp
     pub value: i16,
 
     pub invisible: bool,
     pub lacing: Option<BlockLacing>,
     pub discardable: bool,
     pub keyframe: bool,
+}
+
+impl TryFrom<&Vec<u8>> for SimpleBlock {
+    type Error = WebmCoercionError;
+
+    fn try_from(value: &Vec<u8>) -> Result<Self, Self::Error> {
+       value.as_slice().try_into()
+    }
 }
 
 impl TryFrom<&[u8]> for SimpleBlock {
