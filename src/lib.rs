@@ -138,19 +138,19 @@ pub mod matroska_spec;
 use matroska_spec::MatroskaSpec;
 
 ///
-/// Alias for [`ebml_iterable::TagIterator`] using [`MatroskaSpec`] as the generic type. 
-/// 
+/// Alias for [`ebml_iterable::TagIterator`] using [`MatroskaSpec`] as the generic type.
+///
 /// This implements Rust's standard [`Iterator`] trait. The struct can be created with the `new` function on any source that implements the [`std::io::Read`] trait. The iterator outputs [`MatroskaSpec`] variants containing the tag data. See the [ebml-iterable](https://crates.io/crates/ebml_iterable) docs for more information if needed.
-/// 
+///
 /// Note: The `with_capacity` method can be used to construct a `WebmIterator` with a specified default buffer size.  This is only useful as a microoptimization to memory management if you know the maximum tag size of the file you're reading.
-/// 
+///
 pub type WebmIterator<R> = TagIterator<R, MatroskaSpec>;
 
 ///
-/// Alias for [`ebml_iterable::TagWriter`]. 
-/// 
+/// Alias for [`ebml_iterable::TagWriter`].
+///
 /// This can be used to write webm files from tag data. This struct can be created with the `new` function on any source that implements the [`std::io::Write`] trait. See the [ebml-iterable](https://crates.io/crates/ebml_iterable) docs for more information if needed.
-/// 
+///
 pub type WebmWriter<W> = TagWriter<W>;
 
 #[cfg(test)]

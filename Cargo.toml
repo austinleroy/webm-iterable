@@ -18,3 +18,11 @@ exclude = [
 
 [dependencies]
 ebml-iterable = { version = "=0.3.2", path = "../ebml-iterable", features = ["derive-spec"] }
+
+[dev-dependencies]
+serde = { version = "1.0.137", features = ["derive"] }
+serde-xml-rs = "0.5.1"
+futures = "0.3"
+hyper = { version = "0.14", features = ["full"]  }
+hyper-tls = "0.5.0"
+tokio = { version = "1.19", features = ["full"]  }

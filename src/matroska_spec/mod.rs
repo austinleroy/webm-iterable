@@ -40,769 +40,307 @@ easy_ebml! {
         Ebml/DocTypeExtension/DocTypeExtensionVersion:  UnsignedInt = 0x4284,
 
         // MKV of spec
-        Segment: Master = 0x18538067,
+        Segment : Master = 0x18538067,
 
-        // Seek
-        Segment/SeekHead: Master = 0x114d9b74,
-        Segment/SeekHead/Seek: Master = 0x4dbb,
-        Segment/SeekHead/Seek/SeekPosition: UnsignedInt = 0x53ac,
-        Segment/SeekHead/Seek/SeekId: Binary = 0x53ab,
+        Segment/Attachments : Master = 0x1941A469,
+        Segment/Attachments/AttachedFile : Master = 0x61A7,
+        Segment/Attachments/AttachedFile/FileData : Binary = 0x465C,
+        Segment/Attachments/AttachedFile/FileDescription : Utf8 = 0x467E,
+        Segment/Attachments/AttachedFile/FileName : Utf8 = 0x466E,
+        Segment/Attachments/AttachedFile/FileReferral : Binary = 0x4675,
+        Segment/Attachments/AttachedFile/FileUID : UnsignedInt = 0x46AE,
+        Segment/Attachments/AttachedFile/FileUsedEndTime : UnsignedInt = 0x4662,
+        Segment/Attachments/AttachedFile/FileUsedStartTime : UnsignedInt = 0x4661,
+
+        Segment/Chapters : Master = 0x1043A770,
+        Segment/Chapters/EditionEntry : Master = 0x45B9,
+        Segment/Chapters/EditionEntry/ChapterAtom : Master = 0xB6,
+        Segment/Chapters/EditionEntry/ChapterAtom/ChapProcess : Master = 0x6944,
+        Segment/Chapters/EditionEntry/ChapterAtom/ChapProcess/ChapProcessCodecID : UnsignedInt = 0x6955,
+        Segment/Chapters/EditionEntry/ChapterAtom/ChapProcess/ChapProcessCommand : Master = 0x6911,
+        Segment/Chapters/EditionEntry/ChapterAtom/ChapProcess/ChapProcessCommand/ChapProcessData : Binary = 0x6933,
+        Segment/Chapters/EditionEntry/ChapterAtom/ChapProcess/ChapProcessCommand/ChapProcessTime : UnsignedInt = 0x6922,
+        Segment/Chapters/EditionEntry/ChapterAtom/ChapProcess/ChapProcessPrivate : Binary = 0x450D,
+        Segment/Chapters/EditionEntry/ChapterAtom/ChapterDisplay : Master = 0x80,
+        Segment/Chapters/EditionEntry/ChapterAtom/ChapterDisplay/ChapString : Utf8 = 0x85,
+        Segment/Chapters/EditionEntry/ChapterAtom/ChapterFlagEnabled : UnsignedInt = 0x4598,
+        Segment/Chapters/EditionEntry/ChapterAtom/ChapterFlagHidden : UnsignedInt = 0x98,
+        Segment/Chapters/EditionEntry/ChapterAtom/ChapterPhysicalEquiv : UnsignedInt = 0x63C3,
+        Segment/Chapters/EditionEntry/ChapterAtom/ChapterSegmentEditionUID : UnsignedInt = 0x6EBC,
+        Segment/Chapters/EditionEntry/ChapterAtom/ChapterSegmentUID : Binary = 0x6E67,
+        Segment/Chapters/EditionEntry/ChapterAtom/ChapterStringUID : Utf8 = 0x5654,
+        Segment/Chapters/EditionEntry/ChapterAtom/ChapterTimeEnd : UnsignedInt = 0x92,
+        Segment/Chapters/EditionEntry/ChapterAtom/ChapterTimeStart : UnsignedInt = 0x91,
+        Segment/Chapters/EditionEntry/ChapterAtom/ChapterTrack : Master = 0x8F,
+        Segment/Chapters/EditionEntry/ChapterAtom/ChapterTrack/ChapterTrackUID : UnsignedInt = 0x89,
+        Segment/Chapters/EditionEntry/ChapterAtom/ChapterUID : UnsignedInt = 0x73C4,
+        Segment/Chapters/EditionEntry/EditionFlagDefault : UnsignedInt = 0x45DB,
+        Segment/Chapters/EditionEntry/EditionFlagHidden : UnsignedInt = 0x45BD,
+        Segment/Chapters/EditionEntry/EditionFlagOrdered : UnsignedInt = 0x45DD,
+        Segment/Chapters/EditionEntry/EditionUID : UnsignedInt = 0x45BC,
+
+        Segment/Cluster : Master = 0x1F43B675,
+        Segment/Cluster/BlockGroup : Master = 0xA0,
+        Segment/Cluster/BlockGroup/Block : Binary = 0xA1,
+        Segment/Cluster/BlockGroup/BlockAdditions : Master = 0x75A1,
+        Segment/Cluster/BlockGroup/BlockAdditions/BlockMore : Master = 0xA6,
+        Segment/Cluster/BlockGroup/BlockAdditions/BlockMore/BlockAddID : UnsignedInt = 0xEE,
+        Segment/Cluster/BlockGroup/BlockAdditions/BlockMore/BlockAdditional : Binary = 0xA5,
+        Segment/Cluster/BlockGroup/BlockDuration : UnsignedInt = 0x9B,
+        Segment/Cluster/BlockGroup/BlockVirtual : Binary = 0xA2,
+        Segment/Cluster/BlockGroup/CodecState : Binary = 0xA4,
+        Segment/Cluster/BlockGroup/DiscardPadding : Integer = 0x75A2,
+        Segment/Cluster/BlockGroup/ReferenceBlock : Integer = 0xFB,
+        Segment/Cluster/BlockGroup/ReferenceFrame : Master = 0xC8,
+        Segment/Cluster/BlockGroup/ReferenceFrame/ReferenceOffset : UnsignedInt = 0xC9,
+        Segment/Cluster/BlockGroup/ReferenceFrame/ReferenceTimestamp : UnsignedInt = 0xCA,
+        Segment/Cluster/BlockGroup/ReferencePriority : UnsignedInt = 0xFA,
+        Segment/Cluster/BlockGroup/ReferenceVirtual : Integer = 0xFD,
+        Segment/Cluster/BlockGroup/Slices : Master = 0x8E,
+        Segment/Cluster/BlockGroup/Slices/TimeSlice : Master = 0xE8,
+        Segment/Cluster/BlockGroup/Slices/TimeSlice/BlockAdditionID : UnsignedInt = 0xCB,
+        Segment/Cluster/BlockGroup/Slices/TimeSlice/Delay : UnsignedInt = 0xCE,
+        Segment/Cluster/BlockGroup/Slices/TimeSlice/FrameNumber : UnsignedInt = 0xCD,
+        Segment/Cluster/BlockGroup/Slices/TimeSlice/LaceNumber : UnsignedInt = 0xCC,
+        Segment/Cluster/BlockGroup/Slices/TimeSlice/SliceDuration : UnsignedInt = 0xCF,
+        Segment/Cluster/EncryptedBlock : Binary = 0xAF,
+        Segment/Cluster/Position : UnsignedInt = 0xA7,
+        Segment/Cluster/PrevSize : UnsignedInt = 0xAB,
+        Segment/Cluster/SilentTracks : Master = 0x5854,
+        Segment/Cluster/SilentTracks/SilentTrackNumber : UnsignedInt = 0x58D7,
+        Segment/Cluster/SimpleBlock : Binary = 0xA3,
+        Segment/Cluster/Timestamp : UnsignedInt = 0xE7,
+
+        Segment/Cues : Master = 0x1C53BB6B,
+        Segment/Cues/CuePoint : Master = 0xBB,
+        Segment/Cues/CuePoint/CueTime : UnsignedInt = 0xB3,
+        Segment/Cues/CuePoint/CueTrackPositions : Master = 0xB7,
+        Segment/Cues/CuePoint/CueTrackPositions/CueBlockNumber : UnsignedInt = 0x5378,
+        Segment/Cues/CuePoint/CueTrackPositions/CueClusterPosition : UnsignedInt = 0xF1,
+        Segment/Cues/CuePoint/CueTrackPositions/CueCodecState : UnsignedInt = 0xEA,
+        Segment/Cues/CuePoint/CueTrackPositions/CueDuration : UnsignedInt = 0xB2,
+        Segment/Cues/CuePoint/CueTrackPositions/CueReference : Master = 0xDB,
+        Segment/Cues/CuePoint/CueTrackPositions/CueReference/CueRefCluster : UnsignedInt = 0x97,
+        Segment/Cues/CuePoint/CueTrackPositions/CueReference/CueRefCodecState : UnsignedInt = 0xEB,
+        Segment/Cues/CuePoint/CueTrackPositions/CueReference/CueRefNumber : UnsignedInt = 0x535F,
+        Segment/Cues/CuePoint/CueTrackPositions/CueReference/CueRefTime : UnsignedInt = 0x96,
+        Segment/Cues/CuePoint/CueTrackPositions/CueRelativePosition : UnsignedInt = 0xF0,
+        Segment/Cues/CuePoint/CueTrackPositions/CueTrack : UnsignedInt = 0xF7,
+
+        Segment/Info : Master = 0x1549A966,
+        Segment/Info/ChapterTranslate : Master = 0x6924,
+        Segment/Info/ChapterTranslate/ChapterTranslateCodec : UnsignedInt = 0x69BF,
+        Segment/Info/ChapterTranslate/ChapterTranslateEditionUID : UnsignedInt = 0x69FC,
+        Segment/Info/ChapterTranslate/ChapterTranslateID : Binary = 0x69A5,
+        Segment/Info/Duration : Float = 0x4489,
+        Segment/Info/MuxingApp : Utf8 = 0x4D80,
+        Segment/Info/NextFilename : Utf8 = 0x3E83BB,
+        Segment/Info/NextUID : Binary = 0x3EB923,
+        Segment/Info/PrevFilename : Utf8 = 0x3C83AB,
+        Segment/Info/PrevUID : Binary = 0x3CB923,
+        Segment/Info/SegmentFamily : Binary = 0x4444,
+        Segment/Info/SegmentFilename : Utf8 = 0x7384,
+        Segment/Info/SegmentUID : Binary = 0x73A4,
+        Segment/Info/TimestampScale : UnsignedInt = 0x2AD7B1,
+        Segment/Info/Title : Utf8 = 0x7BA9,
+        Segment/Info/WritingApp : Utf8 = 0x5741,
+
+        Segment/SeekHead : Master = 0x114D9B74,
+        Segment/SeekHead/Seek : Master = 0x4DBB,
+        Segment/SeekHead/Seek/SeekID : Binary = 0x53AB,
+        Segment/SeekHead/Seek/SeekPosition : UnsignedInt = 0x53AC,
+
+        Segment/Tags : Master = 0x1254C367,
+        Segment/Tags/Tag : Master = 0x7373,
+        Segment/Tags/Tag/SimpleTag : Master = 0x67C8,
+        Segment/Tags/Tag/SimpleTag/TagBinary : Binary = 0x4485,
+        Segment/Tags/Tag/SimpleTag/TagDefault : UnsignedInt = 0x4484,
+        Segment/Tags/Tag/SimpleTag/TagDefaultBogus : UnsignedInt = 0x44B4,
+        Segment/Tags/Tag/SimpleTag/TagName : Utf8 = 0x45A3,
+        Segment/Tags/Tag/SimpleTag/TagString : Utf8 = 0x4487,
+        Segment/Tags/Tag/Targets : Master = 0x63C0,
+        Segment/Tags/Tag/Targets/TagAttachmentUID : UnsignedInt = 0x63C6,
+        Segment/Tags/Tag/Targets/TagChapterUID : UnsignedInt = 0x63C4,
+        Segment/Tags/Tag/Targets/TagEditionUID : UnsignedInt = 0x63C9,
+        Segment/Tags/Tag/Targets/TagTrackUID : UnsignedInt = 0x63C5,
+        Segment/Tags/Tag/Targets/TargetTypeValue : UnsignedInt = 0x68CA,
+
+        Segment/Tracks : Master = 0x1654AE6B,
+        Segment/Tracks/TrackEntry : Master = 0xAE,
+        Segment/Tracks/TrackEntry/AttachmentLink : UnsignedInt = 0x7446,
+        Segment/Tracks/TrackEntry/Audio : Master = 0xE1,
+        Segment/Tracks/TrackEntry/Audio/BitDepth : UnsignedInt = 0x6264,
+        Segment/Tracks/TrackEntry/Audio/ChannelPositions : Binary = 0x7D7B,
+        Segment/Tracks/TrackEntry/Audio/Channels : UnsignedInt = 0x9F,
+        Segment/Tracks/TrackEntry/Audio/OutputSamplingFrequency : Float = 0x78B5,
+        Segment/Tracks/TrackEntry/Audio/SamplingFrequency : Float = 0xB5,
+        Segment/Tracks/TrackEntry/BlockAdditionMapping : Master = 0x41E4,
+        Segment/Tracks/TrackEntry/BlockAdditionMapping/BlockAddIDExtraData : Binary = 0x41ED,
+        Segment/Tracks/TrackEntry/BlockAdditionMapping/BlockAddIDType : UnsignedInt = 0x41E7,
+        Segment/Tracks/TrackEntry/BlockAdditionMapping/BlockAddIDValue : UnsignedInt = 0x41F0,
+        Segment/Tracks/TrackEntry/CodecDecodeAll : UnsignedInt = 0xAA,
+        Segment/Tracks/TrackEntry/CodecDelay : UnsignedInt = 0x56AA,
+        Segment/Tracks/TrackEntry/CodecName : Utf8 = 0x258688,
+        Segment/Tracks/TrackEntry/CodecPrivate : Binary = 0x63A2,
+        Segment/Tracks/TrackEntry/CodecSettings : Utf8 = 0x3A9697,
+        Segment/Tracks/TrackEntry/ContentEncodings : Master = 0x6D80,
+        Segment/Tracks/TrackEntry/ContentEncodings/ContentEncoding : Master = 0x6240,
+        Segment/Tracks/TrackEntry/ContentEncodings/ContentEncoding/ContentCompression : Master = 0x5034,
+        Segment/Tracks/TrackEntry/ContentEncodings/ContentEncoding/ContentCompression/ContentCompAlgo : UnsignedInt = 0x4254,
+        Segment/Tracks/TrackEntry/ContentEncodings/ContentEncoding/ContentCompression/ContentCompSettings : Binary = 0x4255,
+        Segment/Tracks/TrackEntry/ContentEncodings/ContentEncoding/ContentEncodingOrder : UnsignedInt = 0x5031,
+        Segment/Tracks/TrackEntry/ContentEncodings/ContentEncoding/ContentEncodingScope : UnsignedInt = 0x5032,
+        Segment/Tracks/TrackEntry/ContentEncodings/ContentEncoding/ContentEncodingType : UnsignedInt = 0x5033,
+        Segment/Tracks/TrackEntry/ContentEncodings/ContentEncoding/ContentEncryption : Master = 0x5035,
+        Segment/Tracks/TrackEntry/ContentEncodings/ContentEncoding/ContentEncryption/ContentEncAESSettings : Master = 0x47E7,
+        Segment/Tracks/TrackEntry/ContentEncodings/ContentEncoding/ContentEncryption/ContentEncAESSettings/AESSettingsCipherMode : UnsignedInt = 0x47E8,
+        Segment/Tracks/TrackEntry/ContentEncodings/ContentEncoding/ContentEncryption/ContentEncAlgo : UnsignedInt = 0x47E1,
+        Segment/Tracks/TrackEntry/ContentEncodings/ContentEncoding/ContentEncryption/ContentEncKeyID : Binary = 0x47E2,
+        Segment/Tracks/TrackEntry/ContentEncodings/ContentEncoding/ContentEncryption/ContentSigAlgo : UnsignedInt = 0x47E5,
+        Segment/Tracks/TrackEntry/ContentEncodings/ContentEncoding/ContentEncryption/ContentSigHashAlgo : UnsignedInt = 0x47E6,
+        Segment/Tracks/TrackEntry/ContentEncodings/ContentEncoding/ContentEncryption/ContentSigKeyID : Binary = 0x47E4,
+        Segment/Tracks/TrackEntry/ContentEncodings/ContentEncoding/ContentEncryption/ContentSignature : Binary = 0x47E3,
+        Segment/Tracks/TrackEntry/DefaultDecodedFieldDuration : UnsignedInt = 0x234E7A,
+        Segment/Tracks/TrackEntry/DefaultDuration : UnsignedInt = 0x23E383,
+        Segment/Tracks/TrackEntry/FlagCommentary : UnsignedInt = 0x55AF,
+        Segment/Tracks/TrackEntry/FlagDefault : UnsignedInt = 0x88,
+        Segment/Tracks/TrackEntry/FlagEnabled : UnsignedInt = 0xB9,
+        Segment/Tracks/TrackEntry/FlagForced : UnsignedInt = 0x55AA,
+        Segment/Tracks/TrackEntry/FlagHearingImpaired : UnsignedInt = 0x55AB,
+        Segment/Tracks/TrackEntry/FlagLacing : UnsignedInt = 0x9C,
+        Segment/Tracks/TrackEntry/FlagOriginal : UnsignedInt = 0x55AE,
+        Segment/Tracks/TrackEntry/FlagTextDescriptions : UnsignedInt = 0x55AD,
+        Segment/Tracks/TrackEntry/FlagVisualImpaired : UnsignedInt = 0x55AC,
+        Segment/Tracks/TrackEntry/MaxBlockAdditionID : UnsignedInt = 0x55EE,
+        Segment/Tracks/TrackEntry/MaxCache : UnsignedInt = 0x6DF8,
+        Segment/Tracks/TrackEntry/MinCache : UnsignedInt = 0x6DE7,
+        Segment/Tracks/TrackEntry/Name : Utf8 = 0x536E,
+        Segment/Tracks/TrackEntry/SeekPreRoll : UnsignedInt = 0x56BB,
+        Segment/Tracks/TrackEntry/TrackNumber : UnsignedInt = 0xD7,
+        Segment/Tracks/TrackEntry/TrackOffset : Integer = 0x537F,
+        Segment/Tracks/TrackEntry/TrackOperation : Master = 0xE2,
+        Segment/Tracks/TrackEntry/TrackOperation/TrackCombinePlanes : Master = 0xE3,
+        Segment/Tracks/TrackEntry/TrackOperation/TrackCombinePlanes/TrackPlane : Master = 0xE4,
+        Segment/Tracks/TrackEntry/TrackOperation/TrackCombinePlanes/TrackPlane/TrackPlaneType : UnsignedInt = 0xE6,
+        Segment/Tracks/TrackEntry/TrackOperation/TrackCombinePlanes/TrackPlane/TrackPlaneUID : UnsignedInt = 0xE5,
+        Segment/Tracks/TrackEntry/TrackOperation/TrackJoinBlocks : Master = 0xE9,
+        Segment/Tracks/TrackEntry/TrackOperation/TrackJoinBlocks/TrackJoinUID : UnsignedInt = 0xED,
+        Segment/Tracks/TrackEntry/TrackOverlay : UnsignedInt = 0x6FAB,
+        Segment/Tracks/TrackEntry/TrackTimestampScale : Float = 0x23314F,
+        Segment/Tracks/TrackEntry/TrackTranslate : Master = 0x6624,
+        Segment/Tracks/TrackEntry/TrackTranslate/TrackTranslateCodec : UnsignedInt = 0x66BF,
+        Segment/Tracks/TrackEntry/TrackTranslate/TrackTranslateEditionUID : UnsignedInt = 0x66FC,
+        Segment/Tracks/TrackEntry/TrackTranslate/TrackTranslateTrackID : Binary = 0x66A5,
+        Segment/Tracks/TrackEntry/TrackType : UnsignedInt = 0x83,
+        Segment/Tracks/TrackEntry/TrackUID : UnsignedInt = 0x73C5,
+        Segment/Tracks/TrackEntry/TrickMasterTrackSegmentUID : Binary = 0xC4,
+        Segment/Tracks/TrackEntry/TrickMasterTrackUID : UnsignedInt = 0xC7,
+        Segment/Tracks/TrackEntry/TrickTrackFlag : UnsignedInt = 0xC6,
+        Segment/Tracks/TrackEntry/TrickTrackSegmentUID : Binary = 0xC1,
+        Segment/Tracks/TrackEntry/TrickTrackUID : UnsignedInt = 0xC0,
+        Segment/Tracks/TrackEntry/Video : Master = 0xE0,
+        Segment/Tracks/TrackEntry/Video/AlphaMode : UnsignedInt = 0x53C0,
+        Segment/Tracks/TrackEntry/Video/AspectRatioType : UnsignedInt = 0x54B3,
+        Segment/Tracks/TrackEntry/Video/Colour : Master = 0x55B0,
+        Segment/Tracks/TrackEntry/Video/Colour/BitsPerChannel : UnsignedInt = 0x55B2,
+        Segment/Tracks/TrackEntry/Video/Colour/CbSubsamplingHorz : UnsignedInt = 0x55B5,
+        Segment/Tracks/TrackEntry/Video/Colour/CbSubsamplingVert : UnsignedInt = 0x55B6,
+        Segment/Tracks/TrackEntry/Video/Colour/ChromaSitingHorz : UnsignedInt = 0x55B7,
+        Segment/Tracks/TrackEntry/Video/Colour/ChromaSitingVert : UnsignedInt = 0x55B8,
+        Segment/Tracks/TrackEntry/Video/Colour/ChromaSubsamplingHorz : UnsignedInt = 0x55B3,
+        Segment/Tracks/TrackEntry/Video/Colour/ChromaSubsamplingVert : UnsignedInt = 0x55B4,
+        Segment/Tracks/TrackEntry/Video/Colour/MasteringMetadata : Master = 0x55D0,
+        Segment/Tracks/TrackEntry/Video/Colour/MasteringMetadata/LuminanceMax : Float = 0x55D9,
+        Segment/Tracks/TrackEntry/Video/Colour/MasteringMetadata/LuminanceMin : Float = 0x55DA,
+        Segment/Tracks/TrackEntry/Video/Colour/MasteringMetadata/PrimaryBChromaticityX : Float = 0x55D5,
+        Segment/Tracks/TrackEntry/Video/Colour/MasteringMetadata/PrimaryBChromaticityY : Float = 0x55D6,
+        Segment/Tracks/TrackEntry/Video/Colour/MasteringMetadata/PrimaryGChromaticityX : Float = 0x55D3,
+        Segment/Tracks/TrackEntry/Video/Colour/MasteringMetadata/PrimaryGChromaticityY : Float = 0x55D4,
+        Segment/Tracks/TrackEntry/Video/Colour/MasteringMetadata/PrimaryRChromaticityX : Float = 0x55D1,
+        Segment/Tracks/TrackEntry/Video/Colour/MasteringMetadata/PrimaryRChromaticityY : Float = 0x55D2,
+        Segment/Tracks/TrackEntry/Video/Colour/MasteringMetadata/WhitePointChromaticityX : Float = 0x55D7,
+        Segment/Tracks/TrackEntry/Video/Colour/MasteringMetadata/WhitePointChromaticityY : Float = 0x55D8,
+        Segment/Tracks/TrackEntry/Video/Colour/MatrixCoefficients : UnsignedInt = 0x55B1,
+        Segment/Tracks/TrackEntry/Video/Colour/MaxCLL : UnsignedInt = 0x55BC,
+        Segment/Tracks/TrackEntry/Video/Colour/MaxFALL : UnsignedInt = 0x55BD,
+        Segment/Tracks/TrackEntry/Video/Colour/Primaries : UnsignedInt = 0x55BB,
+        Segment/Tracks/TrackEntry/Video/Colour/Range : UnsignedInt = 0x55B9,
+        Segment/Tracks/TrackEntry/Video/Colour/TransferCharacteristics : UnsignedInt = 0x55BA,
+        Segment/Tracks/TrackEntry/Video/DisplayHeight : UnsignedInt = 0x54BA,
+        Segment/Tracks/TrackEntry/Video/DisplayUnit : UnsignedInt = 0x54B2,
+        Segment/Tracks/TrackEntry/Video/DisplayWidth : UnsignedInt = 0x54B0,
+        Segment/Tracks/TrackEntry/Video/FieldOrder : UnsignedInt = 0x9D,
+        Segment/Tracks/TrackEntry/Video/FlagInterlaced : UnsignedInt = 0x9A,
+        Segment/Tracks/TrackEntry/Video/FrameRate : Float = 0x2383E3,
+        Segment/Tracks/TrackEntry/Video/GammaValue : Float = 0x2FB523,
+        Segment/Tracks/TrackEntry/Video/OldStereoMode : UnsignedInt = 0x53B9,
+        Segment/Tracks/TrackEntry/Video/PixelCropBottom : UnsignedInt = 0x54AA,
+        Segment/Tracks/TrackEntry/Video/PixelCropLeft : UnsignedInt = 0x54CC,
+        Segment/Tracks/TrackEntry/Video/PixelCropRight : UnsignedInt = 0x54DD,
+        Segment/Tracks/TrackEntry/Video/PixelCropTop : UnsignedInt = 0x54BB,
+        Segment/Tracks/TrackEntry/Video/PixelHeight : UnsignedInt = 0xBA,
+        Segment/Tracks/TrackEntry/Video/PixelWidth : UnsignedInt = 0xB0,
+        Segment/Tracks/TrackEntry/Video/Projection : Master = 0x7670,
+        Segment/Tracks/TrackEntry/Video/Projection/ProjectionPosePitch : Float = 0x7674,
+        Segment/Tracks/TrackEntry/Video/Projection/ProjectionPoseRoll : Float = 0x7675,
+        Segment/Tracks/TrackEntry/Video/Projection/ProjectionPoseYaw : Float = 0x7673,
+        Segment/Tracks/TrackEntry/Video/Projection/ProjectionPrivate : Binary = 0x7672,
+        Segment/Tracks/TrackEntry/Video/Projection/ProjectionType : UnsignedInt = 0x7671,
+        Segment/Tracks/TrackEntry/Video/StereoMode : UnsignedInt = 0x53B8,
+        Segment/Tracks/TrackEntry/Video/UncompressedFourCC : Binary = 0x2EB524,
     }
 }
 
-///
-/// The Matroska specification, as an enum.
-///
-/// Variants are all of the different tag types defined by the Matroska spec.
-///
-#[ebml_specification]
-#[derive(Clone, PartialEq, Debug)]
-pub enum MatroskaSpec2 {
+#[cfg(test)]
+mod test {
+    use std::io;
+    use std::io::Write;
+    use std::str::from_utf8;
+    use hyper::Client;
+    use hyper_tls::HttpsConnector;
+    use serde::{Deserialize, Serialize};
 
-    // Segment Info
+    #[derive(Clone, Debug, Serialize, Deserialize)]
+    pub struct EBMLSpec {
+        #[serde(rename = "$value")]
+        elements: Vec<EBMLElement>
+    }
 
-    #[id(0x1549a966)]
-    #[data_type(TagDataType::Master)]
-    #[parent(Segment)]
-    Info,
+    #[derive(Clone, Debug, Serialize, Deserialize)]
+    pub struct EBMLElement {
+        path: String,
+        id: String,
+        r#type: String,
+    }
 
-    #[id(0x73a4)]
-    #[data_type(TagDataType::Binary)]
-    #[parent(Info)]
-    SegmentUid,
+    #[ignore]
+    #[tokio::test]
+    async fn print_spec() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+        let url = "https://raw.githubusercontent.com/ietf-wg-cellar/matroska-specification/master/ebml_matroska.xml";
+        let client = Client::builder().build::<_, hyper::Body>(HttpsConnector::new());
+        let resp = client.get(url.parse()?).await?;
+        let bytes = hyper::body::to_bytes(resp.into_body()).await?;
+        let str = from_utf8(&bytes)?;
+        let spec: EBMLSpec = serde_xml_rs::from_str(str)?;
 
-    #[id(0x7384)]
-    #[data_type(TagDataType::Utf8)]
-    #[parent(Info)]
-    SegmentFilename,
-
-    #[id(0x6e67)]
-    #[data_type(TagDataType::Binary)]
-    #[parent(Info)]
-    ChapterSegmentUid,
-
-    #[id(0x3cb923)]
-    #[data_type(TagDataType::Binary)]
-    #[parent(Info)]
-    PrevUid,
-
-    #[id(0x3c83ab)]
-    #[data_type(TagDataType::Utf8)]
-    #[parent(Info)]
-    PrevFilename,
-
-    #[id(0x3eb923)]
-    #[data_type(TagDataType::Binary)]
-    #[parent(Info)]
-    NextUid,
-
-    #[id(0x3e83bb)]
-    #[data_type(TagDataType::Utf8)]
-    #[parent(Info)]
-    NextFilename,
-
-    #[id(0x4444)]
-    #[data_type(TagDataType::Binary)]
-    #[parent(Info)]
-    SegmentFamily,
-
-    #[id(0x6924)]
-    #[data_type(TagDataType::Master)]
-    #[parent(Info)]
-    ChapterTranslate,
-
-    #[id(0x69fc)]
-    #[data_type(TagDataType::UnsignedInt)]
-    #[parent(ChapterTranslate)]
-    ChapterTranslateEditionUid,
-
-    #[id(0x69bf)]
-    #[data_type(TagDataType::UnsignedInt)]
-    #[parent(ChapterTranslate)]
-    ChapterTranslateCodec,
-
-    #[id(0x69a5)]
-    #[data_type(TagDataType::Binary)]
-    #[parent(ChapterTranslate)]
-    ChapterTranslateId,
-
-    #[id(0x2ad7b1)]
-    #[data_type(TagDataType::UnsignedInt)]
-    #[parent(Info)]
-    TimecodeScale,
-
-    #[id(0x4489)]
-    #[data_type(TagDataType::Float)]
-    #[parent(Info)]
-    Duration,
-
-    #[id(0x4461)]
-    #[data_type(TagDataType::Binary)]
-    #[parent(Info)]
-    DateUtc,
-
-    #[id(0x7ba9)]
-    #[data_type(TagDataType::Utf8)]
-    #[parent(Info)]
-    Title,
-
-    #[id(0x4d80)]
-    #[data_type(TagDataType::Utf8)]
-    #[parent(Info)]
-    MuxingApp,
-
-    #[id(0x5741)]
-    #[data_type(TagDataType::Utf8)]
-    #[parent(Info)]
-    WritingApp,
-
-    // Cluster
-
-    #[id(0x1f43b675)]
-    #[data_type(TagDataType::Master)]
-    #[parent(Segment)]
-    Cluster,
-
-    #[id(0xe7)]
-    #[data_type(TagDataType::UnsignedInt)]
-    #[parent(Cluster)]
-    Timecode,
-
-    #[id(0x5854)]
-    #[data_type(TagDataType::Master)]
-    #[parent(Cluster)]
-    SilentTracks,
-
-    #[id(0x58d7)]
-    #[data_type(TagDataType::UnsignedInt)]
-    #[parent(SilentTracks)]
-    SilentTrackNumber,
-
-    #[id(0xa7)]
-    #[data_type(TagDataType::UnsignedInt)]
-    #[parent(Cluster)]
-    Position,
-
-    #[id(0xab)]
-    #[data_type(TagDataType::UnsignedInt)]
-    #[parent(Cluster)]
-    PrevSize,
-
-    #[id(0xa3)]
-    #[data_type(TagDataType::Binary)]
-    #[parent(Cluster)]
-    SimpleBlock,
-
-    #[id(0xa0)]
-    #[data_type(TagDataType::Master)]
-    #[parent(Cluster)]
-    BlockGroup,
-
-    #[id(0xa1)]
-    #[data_type(TagDataType::Binary)]
-    #[parent(BlockGroup)]
-    Block,
-
-    #[id(0xa2)]
-    #[data_type(TagDataType::Binary)]
-    #[parent(BlockGroup)]
-    BlockVirtual,
-
-    #[id(0x75a1)]
-    #[data_type(TagDataType::Master)]
-    #[parent(BlockGroup)]
-    BlockAdditions,
-
-    #[id(0xa6)]
-    #[data_type(TagDataType::Master)]
-    #[parent(BlockAdditions)]
-    BlockMore,
-
-    #[id(0xee)]
-    #[data_type(TagDataType::UnsignedInt)]
-    #[parent(BlockMore)]
-    BlockAddId,
-
-    #[id(0xa5)]
-    #[data_type(TagDataType::Binary)]
-    #[parent(BlockMore)]
-    BlockAdditional,
-
-    #[id(0x9b)]
-    #[data_type(TagDataType::UnsignedInt)]
-    #[parent(BlockGroup)]
-    BlockDuration,
-
-    #[id(0xfa)]
-    #[data_type(TagDataType::UnsignedInt)]
-    #[parent(BlockGroup)]
-    ReferencePriority,
-
-    #[id(0xfb)]
-    #[data_type(TagDataType::Integer)]
-    #[parent(BlockGroup)]
-    ReferenceBlock,
-
-    #[id(0xfd)]
-    #[data_type(TagDataType::Integer)]
-    #[parent(BlockGroup)]
-    ReferenceVirtual,
-
-    #[id(0xa4)]
-    #[data_type(TagDataType::Binary)]
-    #[parent(BlockGroup)]
-    CodecState,
-
-    #[id(0x75a2)]
-    #[data_type(TagDataType::Integer)]
-    #[parent(BlockGroup)]
-    DiscardPadding,
-
-    #[id(0x8e)]
-    #[data_type(TagDataType::Master)]
-    #[parent(BlockGroup)]
-    Slices,
-
-    #[id(0xe8)]
-    #[data_type(TagDataType::Master)]
-    #[parent(Slices)]
-    TimeSlice,
-
-    #[id(0xcc)]
-    #[data_type(TagDataType::UnsignedInt)]
-    #[parent(TimeSlice)]
-    LaceNumber,
-
-    #[id(0xcd)]
-    #[data_type(TagDataType::UnsignedInt)]
-    #[parent(TimeSlice)]
-    FrameNumber,
-
-    #[id(0xcb)]
-    #[data_type(TagDataType::UnsignedInt)]
-    #[parent(TimeSlice)]
-    BlockAdditionId,
-
-    #[id(0xce)]
-    #[data_type(TagDataType::UnsignedInt)]
-    #[parent(TimeSlice)]
-    Delay,
-
-    #[id(0xcf)]
-    #[data_type(TagDataType::UnsignedInt)]
-    #[parent(TimeSlice)]
-    SliceDuration,
-
-    #[id(0xc8)]
-    #[data_type(TagDataType::Master)]
-    #[parent(BlockGroup)]
-    ReferenceFrame,
-
-    #[id(0xc9)]
-    #[data_type(TagDataType::UnsignedInt)]
-    #[parent(ReferenceFrame)]
-    ReferenceOffset,
-
-    #[id(0xca)]
-    #[data_type(TagDataType::UnsignedInt)]
-    ReferenceTimeCode,
-
-    #[id(0xaf)]
-    #[data_type(TagDataType::Binary)]
-    EncryptedBlock,
-
-
-    #[id(0x56bb)]
-    #[data_type(TagDataType::UnsignedInt)]
-    SeekPreRoll,
-
-    #[id(0x80)]
-    #[data_type(TagDataType::Master)]
-    ChapterDisplay,
-    #[id(0x83)]
-    #[data_type(TagDataType::UnsignedInt)]
-    TrackType,
-    #[id(0x85)]
-    #[data_type(TagDataType::Utf8)]
-    ChapString,
-    #[id(0x86)]
-    #[data_type(TagDataType::Utf8)]
-    CodecId,
-    #[id(0x88)]
-    #[data_type(TagDataType::UnsignedInt)]
-    FlagDefault,
-    #[id(0x89)]
-    #[data_type(TagDataType::UnsignedInt)]
-    ChapterTrackNumber,
-    #[id(0x91)]
-    #[data_type(TagDataType::UnsignedInt)]
-    ChapterTimeStart,
-    #[id(0x92)]
-    #[data_type(TagDataType::UnsignedInt)]
-    ChapterTimeEnd,
-    #[id(0x96)]
-    #[data_type(TagDataType::UnsignedInt)]
-    CueRefTime,
-    #[id(0x97)]
-    #[data_type(TagDataType::UnsignedInt)]
-    CueRefCluster,
-    #[id(0x98)]
-    #[data_type(TagDataType::UnsignedInt)]
-    ChapterFlagHidden,
-    #[id(0x4254)]
-    #[data_type(TagDataType::UnsignedInt)]
-    ContentCompAlgo,
-    #[id(0x4255)]
-    #[data_type(TagDataType::Binary)]
-    ContentCompSettings,
-    #[id(0x4484)]
-    #[data_type(TagDataType::UnsignedInt)]
-    TagDefault,
-    #[id(0x4485)]
-    #[data_type(TagDataType::Binary)]
-    TagBinary,
-    #[id(0x4487)]
-    #[data_type(TagDataType::Utf8)]
-    TagString,
-    #[id(0x4598)]
-    #[data_type(TagDataType::UnsignedInt)]
-    ChapterFlagEnabled,
-    #[id(0x4660)]
-    #[data_type(TagDataType::Utf8)]
-    FileMimeType,
-    #[id(0x4661)]
-    #[data_type(TagDataType::UnsignedInt)]
-    FileUsedStartTime,
-    #[id(0x4662)]
-    #[data_type(TagDataType::UnsignedInt)]
-    FileUsedEndTime,
-    #[id(0x4675)]
-    #[data_type(TagDataType::Binary)]
-    FileReferral,
-    #[id(0x5031)]
-    #[data_type(TagDataType::UnsignedInt)]
-    ContentEncodingOrder,
-    #[id(0x5032)]
-    #[data_type(TagDataType::UnsignedInt)]
-    ContentEncodingScope,
-    #[id(0x5033)]
-    #[data_type(TagDataType::UnsignedInt)]
-    ContentEncodingType,
-    #[id(0x5034)]
-    #[data_type(TagDataType::Master)]
-    ContentCompression,
-    #[id(0x5035)]
-    #[data_type(TagDataType::Master)]
-    ContentEncryption,
-    #[id(0x5378)]
-    #[data_type(TagDataType::UnsignedInt)]
-    CueBlockNumber,
-    #[id(0x5654)]
-    #[data_type(TagDataType::Utf8)]
-    ChapterStringUid,
-    #[id(0x6240)]
-    #[data_type(TagDataType::Master)]
-    ContentEncoding,
-    #[id(0x6264)]
-    #[data_type(TagDataType::UnsignedInt)]
-    BitDepth,
-    #[id(0x6532)]
-    #[data_type(TagDataType::Binary)]
-    SignedElement,
-    #[id(0x6624)]
-    #[data_type(TagDataType::Master)]
-    TrackTranslate,
-    #[id(0x6911)]
-    #[data_type(TagDataType::Master)]
-    ChapProcessCommand,
-    #[id(0x6922)]
-    #[data_type(TagDataType::UnsignedInt)]
-    ChapProcessTime,
-    #[id(0x6933)]
-    #[data_type(TagDataType::Binary)]
-    ChapProcessData,
-    #[id(0x6944)]
-    #[data_type(TagDataType::Master)]
-    ChapProcess,
-    #[id(0x6955)]
-    #[data_type(TagDataType::UnsignedInt)]
-    ChapProcessCodecId,
-    #[id(0x7373)]
-    #[data_type(TagDataType::Master)]
-    Tag,
-    #[id(0x7446)]
-    #[data_type(TagDataType::UnsignedInt)]
-    AttachmentLink,
-    #[id(0x258688)]
-    #[data_type(TagDataType::Utf8)]
-    CodecName,
-    #[id(0x447a)]
-    #[data_type(TagDataType::Utf8)]
-    TagLanguage,
-    #[id(0x45a3)]
-    #[data_type(TagDataType::Utf8)]
-    TagName,
-    #[id(0x67c8)]
-    #[data_type(TagDataType::Master)]
-    SimpleTag,
-    #[id(0x63c6)]
-    #[data_type(TagDataType::UnsignedInt)]
-    TagAttachmentUid,
-    #[id(0x63c4)]
-    #[data_type(TagDataType::UnsignedInt)]
-    TagChapterUid,
-    #[id(0x63c9)]
-    #[data_type(TagDataType::UnsignedInt)]
-    TagEditionUid,
-    #[id(0x63c5)]
-    #[data_type(TagDataType::UnsignedInt)]
-    TagTrackUid,
-    #[id(0x63ca)]
-    #[data_type(TagDataType::Utf8)]
-    TargetType,
-    #[id(0x68ca)]
-    #[data_type(TagDataType::UnsignedInt)]
-    TargetTypeValue,
-    #[id(0x63c0)]
-    #[data_type(TagDataType::Master)]
-    Targets,
-    #[id(0x1254c367)]
-    #[data_type(TagDataType::Master)]
-    Tags,
-    #[id(0x450d)]
-    #[data_type(TagDataType::Binary)]
-    ChapProcessPrivate,
-    #[id(0x437e)]
-    #[data_type(TagDataType::Utf8)]
-    ChapCountry,
-    #[id(0x437c)]
-    #[data_type(TagDataType::Utf8)]
-    ChapLanguage,
-    #[id(0x8f)]
-    #[data_type(TagDataType::Master)]
-    ChapterTrack,
-    #[id(0x63c3)]
-    #[data_type(TagDataType::UnsignedInt)]
-    ChapterPhysicalEquiv,
-    #[id(0x6ebc)]
-    #[data_type(TagDataType::UnsignedInt)]
-    ChapterSegmentEditionUid,
-    #[id(0x73c4)]
-    #[data_type(TagDataType::UnsignedInt)]
-    ChapterUid,
-    #[id(0xb6)]
-    #[data_type(TagDataType::Master)]
-    ChapterAtom,
-    #[id(0x45dd)]
-    #[data_type(TagDataType::UnsignedInt)]
-    EditionFlagOrdered,
-    #[id(0x45db)]
-    #[data_type(TagDataType::UnsignedInt)]
-    EditionFlagDefault,
-    #[id(0x45bd)]
-    #[data_type(TagDataType::UnsignedInt)]
-    EditionFlagHidden,
-    #[id(0x45bc)]
-    #[data_type(TagDataType::UnsignedInt)]
-    EditionUid,
-    #[id(0x45b9)]
-    #[data_type(TagDataType::Master)]
-    EditionEntry,
-    #[id(0x1043a770)]
-    #[data_type(TagDataType::Master)]
-    Chapters,
-    #[id(0x46ae)]
-    #[data_type(TagDataType::UnsignedInt)]
-    FileUid,
-    #[id(0x465c)]
-    #[data_type(TagDataType::Binary)]
-    FileData,
-    #[id(0x466e)]
-    #[data_type(TagDataType::Utf8)]
-    FileName,
-    #[id(0x467e)]
-    #[data_type(TagDataType::Utf8)]
-    FileDescription,
-    #[id(0x61a7)]
-    #[data_type(TagDataType::Master)]
-    AttachedFile,
-    #[id(0x1941a469)]
-    #[data_type(TagDataType::Master)]
-    Attachments,
-    #[id(0xeb)]
-    #[data_type(TagDataType::UnsignedInt)]
-    CueRefCodecState,
-    #[id(0x535f)]
-    #[data_type(TagDataType::UnsignedInt)]
-    CueRefNumber,
-    #[id(0xdb)]
-    #[data_type(TagDataType::Master)]
-    CueReference,
-    #[id(0xea)]
-    #[data_type(TagDataType::UnsignedInt)]
-    CueCodecState,
-    #[id(0xb2)]
-    #[data_type(TagDataType::UnsignedInt)]
-    CueDuration,
-    #[id(0xf0)]
-    #[data_type(TagDataType::UnsignedInt)]
-    CueRelativePosition,
-    #[id(0xf1)]
-    #[data_type(TagDataType::UnsignedInt)]
-    CueClusterPosition,
-    #[id(0xf7)]
-    #[data_type(TagDataType::UnsignedInt)]
-    CueTrack,
-    #[id(0xb7)]
-    #[data_type(TagDataType::Master)]
-    CueTrackPositions,
-    #[id(0xb3)]
-    #[data_type(TagDataType::UnsignedInt)]
-    CueTime,
-    #[id(0xbb)]
-    #[data_type(TagDataType::Master)]
-    CuePoint,
-    #[id(0x1c53bb6b)]
-    #[data_type(TagDataType::Master)]
-    Cues,
-    #[id(0x47e8)]
-    #[data_type(TagDataType::UnsignedInt)]
-    AesSettingsCipherMode,
-    #[id(0x47e7)]
-    #[data_type(TagDataType::Master)]
-    ContentEncAesSettings,
-    #[id(0x47e6)]
-    #[data_type(TagDataType::UnsignedInt)]
-    ContentSigHashAlgo,
-    #[id(0x47e5)]
-    #[data_type(TagDataType::UnsignedInt)]
-    ContentSigAlgo,
-    #[id(0x47e4)]
-    #[data_type(TagDataType::Binary)]
-    ContentSigKeyId,
-    #[id(0x47e3)]
-    #[data_type(TagDataType::Binary)]
-    ContentSignature,
-    #[id(0x47e2)]
-    #[data_type(TagDataType::Binary)]
-    ContentEncKeyId,
-    #[id(0x47e1)]
-    #[data_type(TagDataType::UnsignedInt)]
-    ContentEncAlgo,
-    #[id(0x6d80)]
-    #[data_type(TagDataType::Master)]
-    ContentEncodings,
-    #[id(0xc4)]
-    #[data_type(TagDataType::Binary)]
-    TrickMasterTrackSegmentUid,
-    #[id(0xc7)]
-    #[data_type(TagDataType::UnsignedInt)]
-    TrickMasterTrackUid,
-    #[id(0xc6)]
-    #[data_type(TagDataType::UnsignedInt)]
-    TrickTrackFlag,
-    #[id(0xc1)]
-    #[data_type(TagDataType::Binary)]
-    TrickTrackSegmentUid,
-    #[id(0xc0)]
-    #[data_type(TagDataType::UnsignedInt)]
-    TrickTrackUid,
-    #[id(0xed)]
-    #[data_type(TagDataType::UnsignedInt)]
-    TrackJoinUid,
-    #[id(0xe9)]
-    #[data_type(TagDataType::Master)]
-    TrackJoinBlocks,
-    #[id(0xe6)]
-    #[data_type(TagDataType::UnsignedInt)]
-    TrackPlaneType,
-    #[id(0xe5)]
-    #[data_type(TagDataType::UnsignedInt)]
-    TrackPlaneUid,
-    #[id(0xe4)]
-    #[data_type(TagDataType::Master)]
-    TrackPlane,
-    #[id(0xe3)]
-    #[data_type(TagDataType::Master)]
-    TrackCombinePlanes,
-    #[id(0xe2)]
-    #[data_type(TagDataType::Master)]
-    TrackOperation,
-    #[id(0x7d7b)]
-    #[data_type(TagDataType::Binary)]
-    ChannelPositions,
-    #[id(0x9f)]
-    #[data_type(TagDataType::UnsignedInt)]
-    Channels,
-    #[id(0x78b5)]
-    #[data_type(TagDataType::Float)]
-    OutputSamplingFrequency,
-    #[id(0xb5)]
-    #[data_type(TagDataType::Float)]
-    SamplingFrequency,
-    #[id(0xe1)]
-    #[data_type(TagDataType::Master)]
-    Audio,
-    #[id(0x2383e3)]
-    #[data_type(TagDataType::Float)]
-    FrameRate,
-    #[id(0x2fb523)]
-    #[data_type(TagDataType::Float)]
-    GammaValue,
-    #[id(0x2eb524)]
-    #[data_type(TagDataType::Binary)]
-    ColourSpace,
-    #[id(0x54b3)]
-    #[data_type(TagDataType::UnsignedInt)]
-    AspectRatioType,
-    #[id(0x54b2)]
-    #[data_type(TagDataType::UnsignedInt)]
-    DisplayUnit,
-    #[id(0x54ba)]
-    #[data_type(TagDataType::UnsignedInt)]
-    DisplayHeight,
-    #[id(0x54b0)]
-    #[data_type(TagDataType::UnsignedInt)]
-    DisplayWidth,
-    #[id(0x54dd)]
-    #[data_type(TagDataType::UnsignedInt)]
-    PixelCropRight,
-    #[id(0x54cc)]
-    #[data_type(TagDataType::UnsignedInt)]
-    PixelCropLeft,
-    #[id(0x54bb)]
-    #[data_type(TagDataType::UnsignedInt)]
-    PixelCropTop,
-    #[id(0x54aa)]
-    #[data_type(TagDataType::UnsignedInt)]
-    PixelCropBottom,
-    #[id(0xba)]
-    #[data_type(TagDataType::UnsignedInt)]
-    PixelHeight,
-    #[id(0xb0)]
-    #[data_type(TagDataType::UnsignedInt)]
-    PixelWidth,
-    #[id(0x53b9)]
-    #[data_type(TagDataType::UnsignedInt)]
-    OldStereoMode,
-    #[id(0x53c0)]
-    #[data_type(TagDataType::UnsignedInt)]
-    AlphaMode,
-    #[id(0x53b8)]
-    #[data_type(TagDataType::UnsignedInt)]
-    StereoMode,
-    #[id(0x9a)]
-    #[data_type(TagDataType::UnsignedInt)]
-    FlagInterlaced,
-    #[id(0xe0)]
-    #[data_type(TagDataType::Master)]
-    Video,
-    #[id(0x66a5)]
-    #[data_type(TagDataType::Binary)]
-    TrackTranslateTrackId,
-    #[id(0x66bf)]
-    #[data_type(TagDataType::UnsignedInt)]
-    TrackTranslateCodec,
-    #[id(0x66fc)]
-    #[data_type(TagDataType::UnsignedInt)]
-    TrackTranslateEditionUid,
-    #[id(0x56aa)]
-    #[data_type(TagDataType::UnsignedInt)]
-    CodecDelay,
-    #[id(0x6fab)]
-    #[data_type(TagDataType::UnsignedInt)]
-    TrackOverlay,
-    #[id(0xaa)]
-    #[data_type(TagDataType::UnsignedInt)]
-    CodecDecodeAll,
-    #[id(0x26b240)]
-    #[data_type(TagDataType::Utf8)]
-    CodecDownloadUrl,
-    #[id(0x3b4040)]
-    #[data_type(TagDataType::Utf8)]
-    CodecInfoUrl,
-    #[id(0x3a9697)]
-    #[data_type(TagDataType::Utf8)]
-    CodecSettings,
-    #[id(0x63a2)]
-    #[data_type(TagDataType::Binary)]
-    CodecPrivate,
-    #[id(0x22b59c)]
-    #[data_type(TagDataType::Utf8)]
-    Language,
-    #[id(0x22b59d)]
-    #[data_type(TagDataType::Utf8)]
-    LanguageIETF,
-    #[id(0x536e)]
-    #[data_type(TagDataType::Utf8)]
-    Name,
-    #[id(0x55ee)]
-    #[data_type(TagDataType::UnsignedInt)]
-    MaxBlockAdditionId,
-    #[id(0x537f)]
-    #[data_type(TagDataType::Integer)]
-    TrackOffset,
-    #[id(0x23314f)]
-    #[data_type(TagDataType::Float)]
-    TrackTimecodeScale,
-    #[id(0x234e7a)]
-    #[data_type(TagDataType::UnsignedInt)]
-    DefaultDecodedFieldDuration,
-    #[id(0x23e383)]
-    #[data_type(TagDataType::UnsignedInt)]
-    DefaultDuration,
-    #[id(0x6df8)]
-    #[data_type(TagDataType::UnsignedInt)]
-    MaxCache,
-    #[id(0x6de7)]
-    #[data_type(TagDataType::UnsignedInt)]
-    MinCache,
-    #[id(0x9c)]
-    #[data_type(TagDataType::UnsignedInt)]
-    FlagLacing,
-    #[id(0x55aa)]
-    #[data_type(TagDataType::UnsignedInt)]
-    FlagForced,
-    #[id(0xb9)]
-    #[data_type(TagDataType::UnsignedInt)]
-    FlagEnabled,
-    #[id(0x73c5)]
-    #[data_type(TagDataType::UnsignedInt)]
-    TrackUid,
-    #[id(0xd7)]
-    #[data_type(TagDataType::UnsignedInt)]
-    TrackNumber,
-    #[id(0xae)]
-    #[data_type(TagDataType::Master)]
-    TrackEntry,
-    #[id(0x1654ae6b)]
-    #[data_type(TagDataType::Master)]
-    Tracks,
-    #[id(0x2ad7b2)]
-    #[data_type(TagDataType::UnsignedInt)]
-    TimecodeScaleDenominator,
-    #[id(0x4dbb)]
-    #[data_type(TagDataType::Master)]
-    Seek,
-    #[id(0x7e7b)]
-    #[data_type(TagDataType::Master)]
-    SignatureElementList,
-    #[id(0x7e5b)]
-    #[data_type(TagDataType::Master)]
-    SignatureElements,
-    #[id(0x7eb5)]
-    #[data_type(TagDataType::Binary)]
-    Signature,
-    #[id(0x7ea5)]
-    #[data_type(TagDataType::Binary)]
-    SignaturePublicKey,
-    #[id(0x7e9a)]
-    #[data_type(TagDataType::UnsignedInt)]
-    SignatureHash,
-    #[id(0x7e8a)]
-    #[data_type(TagDataType::UnsignedInt)]
-    SignatureAlgo,
-    #[id(0x1b538667)]
-    #[data_type(TagDataType::Master)]
-    SignatureSlot,
+        let mut lines = vec![];
+        for EBMLElement {  path, id, r#type } in spec.elements {
+            let ty = match r#type.as_str() {
+                "master" => "Master",
+                "uinteger" => "UnsignedInt",
+                "integer" => "Integer",
+                "utf-8" => "Utf8",
+                "binary" => "Binary",
+                "float" => "Float",
+                _ => continue
+            };
+            let path = path.trim_start_matches("\\").replace("\\", "/").replace("+", "");
+            lines.push(format!("{} : {} = {},", path, ty, id));
+        }
+        lines.sort();
+        for line in lines {
+            println!("{}", line);
+        }
+        Ok(())
+    }
 }
