@@ -3,7 +3,7 @@ This crate was built to ease parsing files encoded in a Matroska container, such
 
 ```Cargo.toml
 [dependencies]
-webm-iterable = "0.3.2"
+webm-iterable = "0.4.0"
 ```
 
 # Usage
@@ -177,7 +177,7 @@ In the above example, we (1) build our iterator and writer based on local file p
 
 # State of this project
 
-Parsing and writing complete files should both work.  Streaming isn't supported yet, but may be an option in the future. If something is broken, please create [an issue][new-issue].
+Parsing and writing complete files should both work.  Streaming (using tags of unknown size) should now also supported as of version 0.4.0. If something is broken, please create [an issue][new-issue].
 
 Any additional feature requests can also be submitted as [an issue][new-issue].
 

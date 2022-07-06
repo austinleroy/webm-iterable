@@ -11,14 +11,14 @@ pub use block::{Block, BlockLacing};
 pub use simple_block::SimpleBlock;
 
 pub use ebml_iterable::specs::{EbmlSpecification, EbmlTag, Master, TagDataType};
-use ebml_iterable::specs::{easy_ebml, ebml_specification};
+use ebml_iterable::specs::easy_ebml;
 
-///
-/// The Matroska specification
-///
-/// Variants are all of the different tag types defined by the Matroska spec.
-///
 easy_ebml! {
+    ///
+    /// The Matroska specification
+    ///
+    /// Variants are all of the different tag types defined by the Matroska spec.
+    ///
     #[derive(Clone, PartialEq, Debug)]
     pub enum MatroskaSpec {
 
@@ -307,8 +307,6 @@ easy_ebml! {
 
 #[cfg(test)]
 mod test {
-    use std::io;
-    use std::io::Write;
     use std::str::from_utf8;
     use hyper::Client;
     use hyper_tls::HttpsConnector;
