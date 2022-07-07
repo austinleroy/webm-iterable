@@ -17,7 +17,7 @@ exclude = [
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-ebml-iterable = { version = "=0.4.0", path = "../ebml-iterable", features = ["derive-spec"] }
+ebml-iterable = { version = "=0.4.0", features = ["derive-spec"] }
 
 [dev-dependencies]
 serde = { version = "1.0.137", features = ["derive"] }
