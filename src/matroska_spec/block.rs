@@ -10,7 +10,7 @@ use super::MatroskaSpec;
 ///
 /// This enum is based on the definition for [Lacing](https://www.matroska.org/technical/basics.html#lacing) as defined by the [Matroska Spec](http://www.matroska.org/technical/specs/index.html).
 ///
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Copy, Clone, Debug)]
 pub enum BlockLacing {
     Xiph,
     Ebml,
@@ -33,6 +33,7 @@ pub enum BlockLacing {
 /// assert_eq!(3, block.track);
 /// ```
 ///
+#[derive(Clone, Debug)]
 pub struct Block {
     pub payload: Vec<u8>,
     pub track: u64,
