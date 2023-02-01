@@ -3,7 +3,7 @@ This crate was built to ease parsing files encoded in a Matroska container, such
 
 ```Cargo.toml
 [dependencies]
-webm-iterable = "0.4.2"
+webm-iterable = "0.5.0"
 ```
 
 # Usage
@@ -18,18 +18,19 @@ See the [ebml-iterable][ebml-iterable] docs for more information on iterating ov
 
 ## Matroska-specific types
 
-This crate provides two additional structs for special matroska data tags:
+This crate provides three additional structs for special matroska data tags:
 
   * [`Block`][mkv-block]
   * [`SimpleBlock`][mkv-sblock]
+  * [`Frame`] (not a tag itself, but used within Blocks & Simple Blocks)
 
 ### Block
 
 ```rs
 pub struct Block {
-    pub payload: Vec<u8>,
+    pub frames: Vec<Frame>,
     pub track: u64,
-    pub value: i16,
+    pub timestamp: i16,
 
     pub invisible: bool,
     pub lacing: BlockLacing,
@@ -42,9 +43,9 @@ These properties are specific to the [Block][mkv-block] element as defined by [M
 
 ```rs
 pub struct SimpleBlock {
-    pub payload: Vec<u8>,
+    pub frames: Vec<Frame>,
     pub track: u64,
-    pub value: i16,
+    pub timestamp: i16,
 
     pub invisible: bool,
     pub lacing: Option<BlockLacing>,

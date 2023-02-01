@@ -3,7 +3,7 @@ use std::convert::{TryInto, TryFrom};
 use ebml_iterable::tools::{self as ebml_tools, Vint};
 
 use super::super::errors::WebmCoercionError;
-use super::{Block, BlockLacing, MatroskaSpec};
+use super::{Block, BlockLacing, Frame, MatroskaSpec};
 
 ///
 /// A typed interpretation of the Matroska "SimpleBlock" element.
@@ -23,10 +23,10 @@ use super::{Block, BlockLacing, MatroskaSpec};
 /// 
 #[derive(Clone, Debug)]
 pub struct SimpleBlock {
-    pub payload: Vec<u8>,
+    pub frames: Vec<Frame>,
     pub track: u64,
     /// The block timestamp
-    pub value: i16,
+    pub timestamp: i16,
 
     pub invisible: bool,
     pub lacing: Option<BlockLacing>,
@@ -59,9 +59,9 @@ impl TryFrom<&[u8]> for SimpleBlock {
         let discardable = flags & 0x01 == 0x01;
 
         Ok(SimpleBlock {
-            payload: block.payload,
+            frames: block.frames,
             track: block.track,
-            value: block.value,
+            timestamp: block.timestamp,
             invisible: block.invisible,
             lacing: block.lacing,
             discardable,
@@ -85,10 +85,14 @@ impl TryFrom<MatroskaSpec> for SimpleBlock {
 }
 
 impl From<SimpleBlock> for MatroskaSpec {
-    fn from(simple_block: SimpleBlock) -> Self {
-        let mut result = Vec::with_capacity(simple_block.payload.len() + 11);
-        result.extend_from_slice(&simple_block.track.as_vint().expect("Unable to convert track value to vint"));
-        result.extend_from_slice(&simple_block.value.to_be_bytes());
+    fn from(mut simple_block: SimpleBlock) -> Self {
+        if simple_block.frames.len() == 1 {
+            // If there is only 1 frame, lacing doesn't apply
+            simple_block.lacing = None;
+        } else if simple_block.lacing.is_none() {
+            // If there is more than 1 frame and lacing is not set, default to Ebml lacing
+            simple_block.lacing = Some(BlockLacing::Ebml);
+        }
         
         let mut flags: u8 = 0x00;
         if simple_block.invisible {
@@ -111,8 +115,13 @@ impl From<SimpleBlock> for MatroskaSpec {
             flags |= 0x80;
         }
 
+        let payload = super::block::build_frame_payload(simple_block.frames, simple_block.lacing);
+
+        let mut result = Vec::with_capacity(payload.len() + 11);
+        result.extend_from_slice(&simple_block.track.as_vint().expect("Unable to convert track value to vint"));
+        result.extend_from_slice(&simple_block.timestamp.to_be_bytes());
         result.extend_from_slice(&flags.to_be_bytes());
-        result.extend_from_slice(&simple_block.payload);
+        result.extend_from_slice(&payload);
 
         MatroskaSpec::SimpleBlock(result)
     }
@@ -124,11 +133,12 @@ mod tests {
 
     use super::MatroskaSpec;
     use super::SimpleBlock;
-    use super::super::block::BlockLacing;
+    use super::Frame;
+    use super::BlockLacing;
 
     #[test]
     fn decode_encode_simple_block() {
-        let block_content = vec![0x81,0x00,0x01,0x9d,0x00,0x00,0x00];
+        let block_content = vec![0x81,0x00,0x01,0x9d,0x01,0x00,0x00];
         let simple_block = SimpleBlock::try_from(MatroskaSpec::SimpleBlock(block_content.clone())).unwrap();
 
         assert!(simple_block.keyframe);
@@ -136,7 +146,8 @@ mod tests {
         assert!(simple_block.invisible);
         assert_eq!(Some(BlockLacing::FixedSize), simple_block.lacing);
         assert_eq!(1, simple_block.track);
-        assert_eq!(1, simple_block.value);
+        assert_eq!(1, simple_block.timestamp);
+        assert_eq!(2, simple_block.frames.len());
 
         let encoded: MatroskaSpec = simple_block.into();
 
@@ -145,6 +156,110 @@ mod tests {
                 assert_eq!(block_content, data);
             },
             _ => panic!("not simple block variant?"),
+        }
+    }
+
+    #[test]
+    fn encode_decode_simple_block_nolacing() {
+        let simple_block = SimpleBlock {
+            frames: vec![Frame { data: vec![0x01, 0x02, 0x03] }],
+            track: 1,
+            timestamp: 15,
+            invisible: false,
+            discardable: false,
+            keyframe: true,
+            lacing: None
+        };
+
+        let encoded: MatroskaSpec = simple_block.clone().into();
+        let redecoded = SimpleBlock::try_from(encoded).unwrap();
+
+        assert_eq!(simple_block.keyframe, redecoded.keyframe);
+        assert_eq!(simple_block.discardable, redecoded.discardable);
+        assert_eq!(simple_block.invisible, redecoded.invisible);
+        assert_eq!(simple_block.lacing, redecoded.lacing);
+        assert_eq!(simple_block.track, redecoded.track);
+        assert_eq!(simple_block.timestamp, redecoded.timestamp);
+        for i in 0..simple_block.frames.len() {
+            assert_eq!(simple_block.frames[i].data, redecoded.frames[i].data);
+        }
+    }
+
+    #[test]
+    fn encode_decode_simple_block_xiphlacing() {
+        let simple_block = SimpleBlock {
+            frames: vec![Frame { data: vec![0x01, 0x02, 0x03] }, Frame { data: vec![0x04, 0x05, 0x06] }, Frame { data: vec![0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e] }],
+            track: 1,
+            timestamp: 15,
+            invisible: false,
+            discardable: false,
+            keyframe: true,
+            lacing: Some(BlockLacing::Xiph)
+        };
+
+        let encoded: MatroskaSpec = simple_block.clone().into();
+        let redecoded = SimpleBlock::try_from(encoded).unwrap();
+
+        assert_eq!(simple_block.keyframe, redecoded.keyframe);
+        assert_eq!(simple_block.discardable, redecoded.discardable);
+        assert_eq!(simple_block.invisible, redecoded.invisible);
+        assert_eq!(simple_block.lacing, redecoded.lacing);
+        assert_eq!(simple_block.track, redecoded.track);
+        assert_eq!(simple_block.timestamp, redecoded.timestamp);
+        for i in 0..simple_block.frames.len() {
+            assert_eq!(simple_block.frames[i].data, redecoded.frames[i].data);
+        }
+    }
+
+    #[test]
+    fn encode_decode_simple_block_ebmllacing() {
+        let simple_block = SimpleBlock {
+            frames: vec![Frame { data: vec![0x01, 0x02, 0x03] }, Frame { data: vec![0x04, 0x05, 0x06] }, Frame { data: vec![0x00] }, Frame { data: vec![0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e] }, Frame { data: vec![0x01, 0x02] }],
+            track: 1,
+            timestamp: 15,
+            invisible: false,
+            discardable: false,
+            keyframe: true,
+            lacing: Some(BlockLacing::Ebml)
+        };
+
+        let encoded: MatroskaSpec = simple_block.clone().into();
+        let redecoded = SimpleBlock::try_from(encoded).unwrap();
+
+        assert_eq!(simple_block.keyframe, redecoded.keyframe);
+        assert_eq!(simple_block.discardable, redecoded.discardable);
+        assert_eq!(simple_block.invisible, redecoded.invisible);
+        assert_eq!(simple_block.lacing, redecoded.lacing);
+        assert_eq!(simple_block.track, redecoded.track);
+        assert_eq!(simple_block.timestamp, redecoded.timestamp);
+        for i in 0..simple_block.frames.len() {
+            assert_eq!(simple_block.frames[i].data, redecoded.frames[i].data);
+        }
+    }
+
+    #[test]
+    fn encode_decode_simple_block_fixedlacing() {
+        let simple_block = SimpleBlock {
+            frames: vec![Frame { data: vec![0x01, 0x02, 0x03] }, Frame { data: vec![0x04, 0x05, 0x06] }],
+            track: 1,
+            timestamp: 15,
+            invisible: false,
+            discardable: false,
+            keyframe: true,
+            lacing: Some(BlockLacing::FixedSize)
+        };
+
+        let encoded: MatroskaSpec = simple_block.clone().into();
+        let redecoded = SimpleBlock::try_from(encoded).unwrap();
+
+        assert_eq!(simple_block.keyframe, redecoded.keyframe);
+        assert_eq!(simple_block.discardable, redecoded.discardable);
+        assert_eq!(simple_block.invisible, redecoded.invisible);
+        assert_eq!(simple_block.lacing, redecoded.lacing);
+        assert_eq!(simple_block.track, redecoded.track);
+        assert_eq!(simple_block.timestamp, redecoded.timestamp);
+        for i in 0..simple_block.frames.len() {
+            assert_eq!(simple_block.frames[i].data, redecoded.frames[i].data);
         }
     }
 }

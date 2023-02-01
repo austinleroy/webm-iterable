@@ -7,7 +7,7 @@
 mod block;
 mod simple_block;
 
-pub use block::{Block, BlockLacing};
+pub use block::{Block, BlockLacing, Frame};
 pub use simple_block::SimpleBlock;
 
 pub use ebml_iterable::specs::{EbmlSpecification, EbmlTag, Master, TagDataType};
