@@ -71,14 +71,14 @@ impl TryFrom<&[u8]> for Block {
 
         let flags: u8 = data[position];
         position += 1;
-        let invisible = (flags & 0x10) == 0x10;
+        let invisible = (flags & 0x08) == 0x08;
 
         let lacing: Option<BlockLacing>;
-        if flags & 0x0c == 0x0c {
-            lacing = Some(BlockLacing::FixedSize);
-        } else if flags & 0x0c == 0x08 {
+        if flags & 0x06 == 0x06 {
             lacing = Some(BlockLacing::Ebml);
-        } else if flags & 0x0c == 0x04 {
+        } else if flags & 0x06 == 0x04 {
+            lacing = Some(BlockLacing::FixedSize);
+        } else if flags & 0x06 == 0x02 {
             lacing = Some(BlockLacing::Xiph);
         } else {
             lacing = None;
@@ -188,19 +188,19 @@ impl From<Block> for MatroskaSpec {
 
         let mut flags: u8 = 0x00;
         if block.invisible {
-            flags |= 0x10;
+            flags |= 0x08;
         }
 
         if block.lacing.is_some() {
             match block.lacing.unwrap() {
                 BlockLacing::Xiph => {
-                    flags |= 0x04;
+                    flags |= 0x02;
                 }
                 BlockLacing::Ebml => {
-                    flags |= 0x08;
+                    flags |= 0x06;
                 }
                 BlockLacing::FixedSize => {
-                    flags |= 0x0c;
+                    flags |= 0x04;
                 }
             }
         }

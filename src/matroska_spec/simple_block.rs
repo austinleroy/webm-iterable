@@ -96,14 +96,14 @@ impl From<SimpleBlock> for MatroskaSpec {
         
         let mut flags: u8 = 0x00;
         if simple_block.invisible {
-          flags |= 0x10;
+          flags |= 0x08;
         }
         
         if simple_block.lacing.is_some() {
           match simple_block.lacing.unwrap() {
-            BlockLacing::Xiph => { flags |= 0x04; },
-            BlockLacing::Ebml => { flags |= 0x08; },
-            BlockLacing::FixedSize => { flags |= 0x0c; },
+            BlockLacing::Xiph => { flags |= 0x02; },
+            BlockLacing::Ebml => { flags |= 0x06; },
+            BlockLacing::FixedSize => { flags |= 0x04; },
           }
         }
 
@@ -138,7 +138,7 @@ mod tests {
 
     #[test]
     fn decode_encode_simple_block() {
-        let block_content = vec![0x81,0x00,0x01,0x9d,0x01,0x00,0x00];
+        let block_content = vec![0x81,0x00,0x01,0x8d,0x01,0x00,0x00];
         let simple_block = SimpleBlock::try_from(MatroskaSpec::SimpleBlock(block_content.clone())).unwrap();
 
         assert!(simple_block.keyframe);
