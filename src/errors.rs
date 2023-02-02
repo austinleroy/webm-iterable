@@ -29,8 +29,8 @@ pub enum WebmCoercionError {
 impl fmt::Display for WebmCoercionError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            WebmCoercionError::BlockCoercionError(msg) => write!(f, "{}", msg),
-            WebmCoercionError::SimpleBlockCoercionError(msg) => write!(f, "{}", msg),
+            WebmCoercionError::BlockCoercionError(msg) => write!(f, "{msg}"),
+            WebmCoercionError::SimpleBlockCoercionError(msg) => write!(f, "{msg}"),
         }
     }
 }

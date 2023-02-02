@@ -120,17 +120,25 @@ fn get_block_frames(payload: &[u8], lacing: Option<BlockLacing>) -> Result<Vec<F
                 while sizes.len() < frame_count - 1 {
                     if let Some((val, val_len)) = ebml_tools::read_vint(&payload[position..]).ok().flatten() {
                         if let Some(last) = sizes.last() {
-                            let difference = if val > ((1 << ((7 * val_len) - 1)) - 1) {
-                                val | !((1 << (7 * val_len)) - 1)
-                            } else {
-                                val
-                            } as i64;
+                            // This reads the value in two's complement notation like the spec describes
+                            // let difference = if val > ((1 << ((7 * val_len) - 1)) - 1) {
+                            //     val | !((1 << (7 * val_len)) - 1)
+                            // } else {
+                            //     val
+                            // } as i64;
+
+                            // But the spec example just subtracts half the range like this
+                            let difference = (val as i64) - ((1 << ((7 * val_len) - 1)) - 1);
+
+                            // I've opened up an issue with the specification: https://github.com/ietf-wg-cellar/matroska-specification/issues/726
+                            // In the mean time, example files with EBML Lacing seem to use the "subtract half range" approach, so we'll make
+                            // the assumption to go with that until there's an update otherwise.
+
                             sizes.push((difference + (*last as i64)) as usize);
-                            position += val_len;
                         } else {
                             sizes.push(val as usize);
-                            position += val_len;
                         }
+                        position += val_len;
                     } else {
                         return Err(WebmCoercionError::BlockCoercionError(String::from("Unable to read ebml lacing frame sizes in block")));
                     }
@@ -234,18 +242,31 @@ pub fn build_frame_payload(frames: Vec<Frame>, lacing: Option<BlockLacing>) -> V
                 for frame in &frames[..frames.len()-1] {
                     let size = frame.data.len();
                     let written_size = if let Some(last_size) = last_size {
-                        let mut diff = (size as i64) - (last_size as i64);
-                        if diff < 0 {
-                            let mut length: usize = 1;
-                            while length <= 8 {
-                                if diff > -(1 << ((7 * length) - 1)) {
-                                    break;
-                                }
-                                length += 1;
+                        // Just like the issue in parsing EBML lacing, this writes the value in two's complement notation like the spec describes
+                        // let mut diff = (size as i64) - (last_size as i64);
+                        // if diff < 0 {
+                        //     let mut length: usize = 1;
+                        //     while length <= 8 {
+                        //         if diff > -(1 << ((7 * length) - 1)) {
+                        //             break;
+                        //         }
+                        //         length += 1;
+                        //     }
+                        //     diff &= (1 << (7 * length)) - 1;
+
+                        // }
+                        // diff as u64
+
+                        // But the spec example would be to just add half the range like this
+                        let diff = (size as i64) - (last_size as i64);
+                        let mut length: usize = 1;
+                        while length <= 8 {
+                            if diff > -(1 << ((7 * length) - 1)) && diff < (1 << ((7 * length) - 1)) {
+                                break;
                             }
-                            diff &= (1 << (7 * length)) - 1;
+                            length += 1;
                         }
-                        diff as u64
+                        (diff + (1 << ((7 * length) - 1)) - 1) as u64
                     } else {
                         size as u64
                     };
