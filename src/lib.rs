@@ -100,14 +100,12 @@
 //!             },
 //!             // 4
 //!             MatroskaSpec::Block(ref data) => {
-//!                 let data: &[u8] = &data;
 //!                 let block: Block = data.try_into()?;
 //!                 if !stripped_tracks.iter().any(|t| *t == block.track) {
 //!                     tag_writer.write(&tag)?;
 //!                 }
 //!             },
 //!             MatroskaSpec::SimpleBlock(ref data) => {
-//!                 let data: &[u8] = &data;
 //!                 let block: Block = data.try_into()?;
 //!                 if !stripped_tracks.iter().any(|t| *t == block.track) {
 //!                     tag_writer.write(&tag)?;

@@ -1,6 +1,6 @@
 [package]
 name = "webm-iterable"
-version = "0.5.2"
+version = "0.5.3"
 authors = ["Austin Blake <austinl3roy@gmail.com>"]
 edition = "2018"
 description = "This crate extends the ebml-iterable library to provide an iterator over webm data.  It provides a Matroska specification implementing the required traits to read webm files."
@@ -17,7 +17,7 @@ exclude = [
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-ebml-iterable = { version = "=0.4.3", features = ["derive-spec"] }
+ebml-iterable = { version = "=0.4.4", features = ["derive-spec"] }
 
 [dev-dependencies]
 serde = { version = "1.0.137", features = ["derive"] }

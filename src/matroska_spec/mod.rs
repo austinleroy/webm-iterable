@@ -4,11 +4,10 @@
 //! This is used in conjuction with the [ebml_iterable](https://crates.io/crates/ebml_iterable) library to be able to read and write Matroska formatted files based on raw tag data. Additionally, this module provides the [`Block`] and [`SimpleBlock`] structs, which provide an easy way to work with block data.  These can easily be converted to and from the regular enum variants using `into()` and `try_from()` to make working with the iterator stream easier.
 //!
 
-mod block;
-mod simple_block;
+mod blocks;
 
-pub use block::{Block, BlockLacing, Frame};
-pub use simple_block::SimpleBlock;
+pub use blocks::block::{Block, BlockLacing, Frame};
+pub use blocks::simple_block::SimpleBlock;
 
 pub use ebml_iterable::specs::{EbmlSpecification, EbmlTag, Master, TagDataType};
 use ebml_iterable::specs::easy_ebml;

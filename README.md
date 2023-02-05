@@ -3,7 +3,7 @@ This crate was built to ease parsing files encoded in a Matroska container, such
 
 ```Cargo.toml
 [dependencies]
-webm-iterable = "0.5.2"
+webm-iterable = "0.5.3"
 ```
 
 # Usage
@@ -28,22 +28,25 @@ This crate provides three additional structs for special matroska data tags:
 
 ```rs
 pub struct Block {
-    pub frames: Vec<Frame>,
     pub track: u64,
     pub timestamp: i16,
 
     pub invisible: bool,
     pub lacing: BlockLacing,
 }
+
+impl Block {
+    pub fn read_frame_data(&self) -> Result<Vec<Frame>, WebmCoercionError>
+    pub fn raw_frame_data(&self) -> &[u8]
+}
 ```
 
-These properties are specific to the [Block][mkv-block] element as defined by [Matroska][mkv].  The `Block` struct implements `TryFrom<MatroskaSpec>` and `Into<MatroskaSpec>` to simplify coercion to and from regular variants.
+These properties are specific to the [Block][mkv-block] element as defined by [Matroska][mkv].  The `Block` struct implements `TryFrom<&MatroskaSpec>` and `Into<MatroskaSpec>` to simplify coercion to and from regular variants.
 
 ### SimpleBlock
 
 ```rs
 pub struct SimpleBlock {
-    pub frames: Vec<Frame>,
     pub track: u64,
     pub timestamp: i16,
 
@@ -52,9 +55,14 @@ pub struct SimpleBlock {
     pub discardable: bool,
     pub keyframe: bool,
 }
+
+impl SimpleBlock {
+    pub fn read_frame_data(&self) -> Result<Vec<Frame>, WebmCoercionError>
+    pub fn raw_frame_data(&self) -> &[u8]
+}
 ```
 
-These properties are specific to the [SimpleBlock][mkv-sblock] element as defined by [Matroska][mkv].  The `SimpleBlock` struct also implements `TryFrom<MatroskaSpec>` and `Into<MatroskaSpec>` to simplify coercion to and from regular variants.
+These properties are specific to the [SimpleBlock][mkv-sblock] element as defined by [Matroska][mkv].  The `SimpleBlock` struct also implements `TryFrom<&MatroskaSpec>` and `Into<MatroskaSpec>` to simplify coercion to and from regular variants.
 
 # Examples
 
@@ -144,14 +152,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             },
             // 4
             MatroskaSpec::Block(ref data) => {
-                let data: &[u8] = &data;
                 let block: Block = data.try_into()?;
                 if !stripped_tracks.iter().any(|t| *t == block.track) {
                     tag_writer.write(&tag)?;
                 }
             },
             MatroskaSpec::SimpleBlock(ref data) => {
-                let data: &[u8] = &data;
                 let block: Block = data.try_into()?;
                 if !stripped_tracks.iter().any(|t| *t == block.track) {
                     tag_writer.write(&tag)?;
