@@ -130,6 +130,7 @@
 
 use ebml_iterable::{TagIterator, TagIteratorAsync, TagWriter};
 
+pub use ebml_iterable::iterator;
 pub mod errors;
 pub mod matroska_spec;
 
@@ -170,13 +171,17 @@ mod tests {
     fn basic_tag_stream_write_and_iterate() {
         let tags: Vec<MatroskaSpec> = vec![
             MatroskaSpec::Ebml(Master::Start),
-            MatroskaSpec::Segment(Master::Start),
-            MatroskaSpec::TrackType(0x01),
-            MatroskaSpec::Segment(Master::End),
-            MatroskaSpec::Cluster(Master::Full(vec![
-                MatroskaSpec::CueRefCluster(0x02),
-            ])),
             MatroskaSpec::Ebml(Master::End),
+            MatroskaSpec::Segment(Master::Start),
+            MatroskaSpec::Tracks(Master::Start),
+            MatroskaSpec::TrackEntry(Master::Start),
+            MatroskaSpec::TrackType(0x01),
+            MatroskaSpec::TrackEntry(Master::End),
+            MatroskaSpec::Tracks(Master::End),
+            MatroskaSpec::Cluster(Master::Full(vec![
+                MatroskaSpec::Position(0x02),
+                ])),
+            MatroskaSpec::Segment(Master::End),
         ];
 
         let mut dest = Cursor::new(Vec::new());
@@ -195,12 +200,16 @@ mod tests {
         println!("tags {:?}", tags);
 
         assert_eq!(MatroskaSpec::Ebml(Master::Start), tags[0]);
-        assert_eq!(MatroskaSpec::Segment(Master::Start), tags[1]);
-        assert_eq!(MatroskaSpec::TrackType(0x01), tags[2]);
-        assert_eq!(MatroskaSpec::Segment(Master::End), tags[3]);
-        assert_eq!(MatroskaSpec::Cluster(Master::Start), tags[4]);
-        assert_eq!(MatroskaSpec::CueRefCluster(0x02), tags[5]);
-        assert_eq!(MatroskaSpec::Cluster(Master::End), tags[6]);
-        assert_eq!(MatroskaSpec::Ebml(Master::End), tags[7]);
+        assert_eq!(MatroskaSpec::Ebml(Master::End), tags[1]);
+        assert_eq!(MatroskaSpec::Segment(Master::Start), tags[2]);
+        assert_eq!(MatroskaSpec::Tracks(Master::Start), tags[3]);
+        assert_eq!(MatroskaSpec::TrackEntry(Master::Start), tags[4]);
+        assert_eq!(MatroskaSpec::TrackType(0x01), tags[5]);
+        assert_eq!(MatroskaSpec::TrackEntry(Master::End), tags[6]);
+        assert_eq!(MatroskaSpec::Tracks(Master::End), tags[7]);
+        assert_eq!(MatroskaSpec::Cluster(Master::Start), tags[8]);
+        assert_eq!(MatroskaSpec::Position(0x02), tags[9]);
+        assert_eq!(MatroskaSpec::Cluster(Master::End), tags[10]);
+        assert_eq!(MatroskaSpec::Segment(Master::End), tags[11]);
     }
 }

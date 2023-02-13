@@ -12,6 +12,9 @@ pub fn read_frame_data<'a>(frame_data: &'a [u8], lacing: &Option<BlockLacing>) -
                 let mut position: usize = 1;
                 let mut size = 0;
                 while sizes.len() < frame_count - 1 {
+                    if position >= frame_data.len() {
+                        return Err(WebmCoercionError::BlockCoercionError("Xiph lacing was bad".to_string()));
+                    }
                     size += frame_data[position] as usize;
                     if frame_data[position] != 0xFF {
                         sizes.push(size);
@@ -25,6 +28,9 @@ pub fn read_frame_data<'a>(frame_data: &'a [u8], lacing: &Option<BlockLacing>) -
                 let mut sizes: Vec<usize> = Vec::with_capacity(frame_count-1);
                 let mut position: usize = 1;
                 while sizes.len() < frame_count - 1 {
+                    if position >= frame_data.len() {
+                        return Err(WebmCoercionError::BlockCoercionError("Ebml lacing was bad".to_string()));
+                    }
                     if let Some((val, val_len)) = ebml_tools::read_vint(&frame_data[position..]).ok().flatten() {
                         if let Some(last) = sizes.last() {
                             // This reads the value in two's complement notation like the spec describes
@@ -66,6 +72,9 @@ pub fn read_frame_data<'a>(frame_data: &'a [u8], lacing: &Option<BlockLacing>) -
 
         let mut frames: Vec<Frame> = Vec::with_capacity(frame_count);
         for size in sizes {
+            if (frame_start + size) >= frame_data.len() {
+                return Err(WebmCoercionError::BlockCoercionError("Laced frame sizes exceeded block length".to_string()));
+            }
             frames.push(Frame { data: &frame_data[frame_start..(frame_start+size)] });
             frame_start += size;
         }

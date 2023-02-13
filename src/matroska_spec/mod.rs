@@ -12,6 +12,7 @@ pub use blocks::simple_block::SimpleBlock;
 pub use ebml_iterable::specs::{EbmlSpecification, EbmlTag, Master, TagDataType};
 use ebml_iterable::specs::easy_ebml;
 
+
 easy_ebml! {
     ///
     /// The Matroska specification
@@ -20,10 +21,6 @@ easy_ebml! {
     ///
     #[derive(Clone, PartialEq, Debug)]
     pub enum MatroskaSpec {
-
-        // Global Elements, automatically detected as global
-        Crc32:  Binary  = 0xbf,
-        Void:   Binary  = 0xec,
 
         // EBML Header
         Ebml:                                           Master      = 0x1a45dfa3,
