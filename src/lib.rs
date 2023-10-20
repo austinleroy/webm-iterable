@@ -128,9 +128,13 @@
 //! * Notice the second parameter passed into the `WebmIterator::new()` function.  This parameter tells the decoder which "master" tags should be read as [`Master::Full`][`crate::matroska_spec::Master::Full`] variants rather than the standard [`Master::Start`][`crate::matroska_spec::Master::Start`] and [`Master::End`][`crate::matroska_spec::Master::End`] variants.  This greatly simplifies our iteration loop logic as we don't have to maintain an internal buffer for the "TrackEntry" tags that we are interested in processing.
 //! 
 
-use ebml_iterable::{TagIterator, TagIteratorAsync, TagWriter};
+use ebml_iterable::{TagIterator, TagWriter};
+
+#[cfg(feature = "futures")]
+use ebml_iterable::nonblocking::TagIteratorAsync;
 
 pub use ebml_iterable::iterator;
+pub use ebml_iterable::WriteOptions;
 pub mod errors;
 pub mod matroska_spec;
 
@@ -150,6 +154,7 @@ pub type WebmIterator<R> = TagIterator<R, MatroskaSpec>;
 ///
 /// This Can be transformed into a [`Stream`] using [`into_stream`]. The struct can be created with the [`new()`] function on any source that implements the [`futures::AsyncRead`] trait. The stream outputs [`MatroskaSpec`] variants containing the tag data. See the [ebml-iterable](https://crates.io/crates/ebml_iterable) docs for more information if needed.
 ///
+#[cfg(feature="futures")]
 pub type WebmIteratorAsync<R> = TagIteratorAsync<R, MatroskaSpec>;
 
 ///

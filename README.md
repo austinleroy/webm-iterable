@@ -3,7 +3,7 @@ This crate was built to ease parsing files encoded in a Matroska container, such
 
 ```Cargo.toml
 [dependencies]
-webm-iterable = "0.5.4"
+webm-iterable = "0.6.0"
 ```
 
 # Usage
