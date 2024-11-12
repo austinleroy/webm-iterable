@@ -95,6 +95,23 @@ impl<'a> Block<'a> {
         self.lacing = new_lacing;
         self.owned_frame_data = Some(data);
     }
+
+    /// 
+    /// Creates a new block with the given data.
+    /// 
+    /// Primarily used if you would like to write with a given frame.
+    /// For example, when you want to remux a video with libvpx.
+    /// 
+    pub fn new_uncheked(track: u64, timestamp: i16, invisible: bool, lacing: Option<BlockLacing>, frame_data: &'a [u8]) -> Self {
+        Block {
+            frame_data,
+            owned_frame_data: None,
+            track,
+            timestamp,
+            invisible,
+            lacing,
+        }
+    }
 }
 
 impl<'a> TryFrom<&'a Vec<u8>> for Block<'a> {

@@ -76,6 +76,28 @@ impl<'a> SimpleBlock<'a> {
         self.lacing = new_lacing;
         self.owned_frame_data = Some(data);
     }
+
+    ///
+    /// Creates a new simple block with the given data.
+    /// 
+    /// Primarily used when you want to write with a given frame.
+    /// For example, when you want to remux a video with libvpx.
+    /// 
+    /// # Safety
+    /// The frame data is not checked for validity.
+    /// 
+    pub fn new_uncheked(frame_data: &'a [u8], track: u64, timestamp: i16, invisible: bool, lacing: Option<BlockLacing>, discardable: bool, keyframe: bool) -> Self {
+        SimpleBlock {
+            frame_data,
+            owned_frame_data: None,
+            track,
+            timestamp,
+            invisible,
+            lacing,
+            discardable,
+            keyframe,
+        }
+    }
 }
 
 impl<'a> TryFrom<&'a Vec<u8>> for SimpleBlock<'a> {
