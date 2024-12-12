@@ -151,7 +151,7 @@ impl<'a> TryFrom<&'a MatroskaSpec> for SimpleBlock<'a> {
     }
 }
 
-impl<'a> From<SimpleBlock<'a>> for MatroskaSpec {
+impl From<SimpleBlock<'_>> for MatroskaSpec {
     fn from(simple_block: SimpleBlock) -> Self {        
         let mut flags: u8 = 0x00;
         if simple_block.invisible {
