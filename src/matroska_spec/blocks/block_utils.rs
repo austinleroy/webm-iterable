@@ -61,7 +61,7 @@ pub fn read_frame_data<'a>(frame_data: &'a [u8], lacing: &Option<BlockLacing>) -
             },
             BlockLacing::FixedSize => {
                 let total_size = frame_data.len() - 1;
-                if total_size % frame_count == 0 {
+                if total_size.is_multiple_of(frame_count) {
                     let frame_size = total_size / frame_count;
                     Ok((1usize, vec![frame_size; frame_count - 1]))
                 } else {

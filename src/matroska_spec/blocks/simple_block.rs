@@ -58,7 +58,7 @@ impl<'a> SimpleBlock<'a> {
     /// 
     /// This method can return an error if the frame data is malformed.
     /// 
-    pub fn read_frame_data(&self) -> Result<Vec<Frame>, WebmCoercionError> {
+    pub fn read_frame_data(&self) -> Result<Vec<Frame<'_>>, WebmCoercionError> {
         read_frame_data(self.owned_frame_data.as_deref().unwrap_or(self.frame_data), &self.lacing)
     }
 
@@ -158,8 +158,8 @@ impl From<SimpleBlock<'_>> for MatroskaSpec {
           flags |= 0x08;
         }
         
-        if simple_block.lacing.is_some() {
-          match simple_block.lacing.unwrap() {
+        if let Some(lacing) = simple_block.lacing {
+          match lacing {
             BlockLacing::Xiph => { flags |= 0x02; },
             BlockLacing::Ebml => { flags |= 0x06; },
             BlockLacing::FixedSize => { flags |= 0x04; },
